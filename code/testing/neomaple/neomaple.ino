@@ -7,6 +7,7 @@
 #include <NeoMaple.h>
 
 #define NUM_LEDS 24
+#define DELAY 50
 
 enum{RED, GREEN, BLUE};
 
@@ -23,7 +24,7 @@ void setup()
 
 int increase_pwm(int current_pwm)
 {
-    return (current_pwm < 100 ? current_pwm + 5 : 5);
+    return (current_pwm < 120 ? current_pwm + 2 : 2);
 }
 
 void loop()
@@ -34,7 +35,7 @@ void loop()
         ledring.setPixelColor(i, 0, pwm, 0);
         ledring.setPixelColor(opposite_pixel(i), 0, 0, pwm);
         ledring.show();
-        delay(100);
+        delay(DELAY);
     }
 
     pwm = increase_pwm(pwm);
@@ -57,11 +58,5 @@ void clearRing(bool update)
 int opposite_pixel(int i)
 {
     int ret_val = i + NUM_LEDS / 2;
-
-    if(ret_val >= NUM_LEDS)
-    {
-        ret_val = 2;
-    }
-
-    return ret_val;
+    return (ret_val >= NUM_LEDS ? ret_val - NUM_LEDS : ret_val);
 }
