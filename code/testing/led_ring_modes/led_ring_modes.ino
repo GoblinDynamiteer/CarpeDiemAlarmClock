@@ -25,19 +25,26 @@ void setup()
 
 void loop()
 {
+    wake_up_mode_blinker(70, 10);
+}
+
+void wake_up_mode_blinker(int blink_delay, int pwm_strenght)
+{
     for (int i = 0; i < NUM_LEDS; i++)
     {
-        ledring.setPixelColor(i, 15, 15, 15);
+        ledring.setPixelColor(
+            i, pwm_strenght, pwm_strenght, pwm_strenght);
     }
 
     ledring.show();
-    delay(50);
+    delay(blink_delay);
 
     for (int i = 0; i < NUM_LEDS; i++)
     {
-        ledring.setPixelColor(i, 0, 0, 0);
+        ledring.setPixelColor(
+            i, 0, 0, 0);
     }
 
     ledring.show();
-    delay(70);
+    delay(blink_delay);
 }
