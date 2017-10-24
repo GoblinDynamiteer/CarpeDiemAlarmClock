@@ -22,14 +22,23 @@ void setup()
 
 void loop()
 {
-    wake_up_mode_blinker(20, 1);
+    wake_up_mode_blinker(10);
 }
 
-void wake_up_mode_blinker(int blink_delay, int pwm_strenght)
+void wake_up_mode_blinker(int blink_delay)
 {
-    for (int fade_led = 1; fade_led < 100; fade_led++) 
+    for (int fade_led = 0; fade_led < 100; fade_led++) 
     {
-        for (int i = 1; i < 24; i++)
+        for (int i = 0; i < 24; i++)
+        {
+          ledring.setPixelColor (i, fade_led, fade_led, fade_led);
+        }
+        ledring.show();
+        delay(blink_delay);        
+    }
+    for (int fade_led = 100; fade_led > 0; fade_led--) 
+    {
+        for (int i = 0; i < 24; i++)
         {
           ledring.setPixelColor (i, fade_led, fade_led, fade_led);
         }
