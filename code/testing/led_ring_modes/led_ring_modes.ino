@@ -4,47 +4,36 @@
     https://github.com/fergul/NeoMaple
  */
 
-#include <NeoMaple.h>
-
+// #include <NeoMaple.h>
+#include <Adafruit_NeoPixel.h>
 #define NUM_LEDS 24
+#define pin 6
 
 /* Default data-pin is PA0 */
-NeoMaple ledring = NeoMaple(NUM_LEDS, NEO_GRB + NEO_KHZ800);
+
+Adafruit_NeoPixel ledring = Adafruit_NeoPixel(NUM_LEDS, pin, NEO_GRB + NEO_KHZ800);
+
+//NeoMaple ledring = NeoMaple(NUM_LEDS, NEO_GRB + NEO_KHZ800);
 
 void setup()
 {
    ledring.begin();
-
-   for (int i = 0; i < 5; i++)
-   {
-       ledring.setPixelColor(i, 0, 0, 0);
-   }
-
-   ledring.show();
 }
 
 void loop()
 {
-    wake_up_mode_blinker(70, 10);
+    wake_up_mode_blinker(20, 1);
 }
 
 void wake_up_mode_blinker(int blink_delay, int pwm_strenght)
 {
-    for (int i = 0; i < NUM_LEDS; i++)
+    for (int fade_led = 1; fade_led < 100; fade_led++) 
     {
-        ledring.setPixelColor(
-            i, pwm_strenght, pwm_strenght, pwm_strenght);
+        for (int i = 1; i < 24; i++)
+        {
+          ledring.setPixelColor (i, fade_led, fade_led, fade_led);
+        }
+        ledring.show();
+        delay(blink_delay);        
     }
-
-    ledring.show();
-    delay(blink_delay);
-
-    for (int i = 0; i < NUM_LEDS; i++)
-    {
-        ledring.setPixelColor(
-            i, 0, 0, 0);
-    }
-
-    ledring.show();
-    delay(blink_delay);
 }
