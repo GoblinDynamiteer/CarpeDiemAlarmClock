@@ -1,8 +1,8 @@
 /*  LED ring strenght test
-    NeoPixel Led-Ring with STM32 devboard
+NeoPixel Led-Ring with STM32 devboard
 
-    https://github.com/fergul/NeoMaple
- */
+https://github.com/fergul/NeoMaple
+*/
 
 // #include <NeoMaple.h>
 #include <Adafruit_NeoPixel.h>
@@ -17,13 +17,14 @@ Adafruit_NeoPixel ledring = Adafruit_NeoPixel(NUM_LEDS, pin, NEO_GRB + NEO_KHZ80
 
 void setup()
 {
-   ledring.begin();
+    ledring.begin();
 }
 
 void loop()
 {
-    //fade_mode(10);
+    fade_mode(10);
     blink_mode(1000, 50,0,0);
+    steady_light_mode(100,100,100);
 }
 
 void fade_mode(int blink_delay)
@@ -32,7 +33,7 @@ void fade_mode(int blink_delay)
     {
         for (int i = 0; i < 24; i++)
         {
-          ledring.setPixelColor (i, fade_led, fade_led, fade_led);
+            ledring.setPixelColor (i, fade_led, fade_led, fade_led);
         }
         ledring.show();
         delay(blink_delay);
@@ -41,7 +42,7 @@ void fade_mode(int blink_delay)
     {
         for (int i = 0; i < 24; i++)
         {
-          ledring.setPixelColor (i, fade_led, fade_led, fade_led);
+            ledring.setPixelColor (i, fade_led, fade_led, fade_led);
         }
         ledring.show();
         delay(blink_delay);
@@ -65,5 +66,13 @@ void blink_mode(int blink_delay, int red, int green, int blue)
     }
     ledring.show();
     delay(blink_delay);
+}
+void steady_light_mode(int red, int green, int blue)
+{
+    for (int i = 0; i < NUM_LEDS; i++)
+    {
+        ledring.setPixelColor (i, red, green, blue);
+    }
+    ledring.show();
 
 }
