@@ -22,27 +22,48 @@ void setup()
 
 void loop()
 {
-    wake_up_mode_blinker(10);
+    //fade_mode(10);
+    blink_mode(1000, 50,0,0);
 }
 
-void wake_up_mode_blinker(int blink_delay)
+void fade_mode(int blink_delay)
 {
-    for (int fade_led = 0; fade_led < 100; fade_led++) 
+    for (int fade_led = 0; fade_led < 100; fade_led++)
     {
         for (int i = 0; i < 24; i++)
         {
           ledring.setPixelColor (i, fade_led, fade_led, fade_led);
         }
         ledring.show();
-        delay(blink_delay);        
+        delay(blink_delay);
     }
-    for (int fade_led = 100; fade_led > 0; fade_led--) 
+    for (int fade_led = 100; fade_led > 0; fade_led--)
     {
         for (int i = 0; i < 24; i++)
         {
           ledring.setPixelColor (i, fade_led, fade_led, fade_led);
         }
         ledring.show();
-        delay(blink_delay);        
+        delay(blink_delay);
     }
+}
+
+void blink_mode(int blink_delay, int red, int green, int blue)
+{
+    for (int i = 0; i <NUM_LEDS; i++)
+    {
+        ledring.setPixelColor (i, red, green, blue);
+    }
+    ledring.show();
+    delay(blink_delay);
+    /* code */
+
+
+    for (int i = 0; i <NUM_LEDS; i++)
+    {
+        ledring.setPixelColor (i, 0, 0, 0);
+    }
+    ledring.show();
+    delay(blink_delay);
+
 }
