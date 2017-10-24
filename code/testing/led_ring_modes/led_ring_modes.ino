@@ -25,6 +25,7 @@ void loop()
     fade_mode(10);
     blink_mode(1000, 50,0,0);
     steady_light_mode(100,100,100);
+    random_blink(200);
 }
 
 void fade_mode(int blink_delay)
@@ -75,4 +76,11 @@ void steady_light_mode(int red, int green, int blue)
     }
     ledring.show();
 
+}
+void random_blink (int delay)
+{
+    int red = random(100);
+    int green = random (100);
+    int blue = random (100);
+    blink_mode (delay, red, green, blue);
 }
