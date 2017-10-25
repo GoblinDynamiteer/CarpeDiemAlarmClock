@@ -1,6 +1,0 @@
-/*  CarpeDiem Alarm clock
-
-    settings.c
-
-    Settings for alarm clock
- */

@@ -1,6 +1,0 @@
-/*  CarpeDiem Alarm clock
-
-    rtc.c
-
-    RTC Functions
- */
