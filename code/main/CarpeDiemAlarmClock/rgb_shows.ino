@@ -8,13 +8,12 @@
 enum { INC_RED, INC_GREEN, INC_BLUE };
 enum { DEC_RED, DEC_GREEN, DEC_BLUE };
 
-
 void rgb_lightshow_splitter(void)
 {
-    static int n = 1;
-    static int red = 2;
-    static int blue = 2;
-    static int green = 3;
+    static uint8_t n = 1;
+    static uint8_t red = 2;
+    static uint8_t blue = 2;
+    static uint8_t green = 3;
 
     ring_set_nth_pixel(n, red, green, blue);
 
@@ -29,11 +28,11 @@ void rgb_lightshow_splitter(void)
 
 void rgb_lightshow_rainbow_spinner(void)
 {
-    static int blue = 20;
-    static int red = 0;
-    static int green = 0;
-    static int inc = INC_RED;
-    static int dec = DEC_BLUE;
+    static uint8_t blue = 20;
+    static uint8_t red = 0;
+    static uint8_t green = 0;
+    static uint8_t inc = INC_RED;
+    static uint8_t dec = DEC_BLUE;
 
     for (size_t i = 0; i < RING_NUM_LEDS; i++)
     {

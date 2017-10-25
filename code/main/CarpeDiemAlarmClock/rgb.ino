@@ -3,6 +3,7 @@
     rtc.c
 
     LED-strip and LED-Ring Functions
+    Default pin for LED-ring data pin is PA0
  */
 
 /* Port of NeoPixel library */
@@ -91,6 +92,25 @@ void ring_fade_mode(int step_delay, int fade_color, int pwm_limit)
             up = !up;
         }
     }
+}
+
+/* OBS Rebuild for strip */
+int strip_show_second(int second)
+{
+    for(int i = 0; i < 6; i++)
+    {
+        if((second >> i) & 1)
+        {
+            ring.setPixelColor(i, ring.Color(10, 118, 200));
+        }
+
+        else
+        {
+            ring.setPixelColor(i, ring.Color(0, 0, 0));
+        }
+    }
+
+    ring.show();
 }
 
 /* Blink LED-ring with random color, one cycle */
