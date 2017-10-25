@@ -3,16 +3,15 @@
     https://github.com/GoblinDynamiteer/CarpeDiemAlarmClock
  */
 
-#include "rtc/rtc.h"
-#include "rgb/rgb.h"
-#include "settings/settings.h"
-
 void setup()
 {
-    
+    rgb_init();
+    rtc_init();
 }
 
 void loop()
 {
-
+    //ring_random_blink(1000);
+    sound_beep(300);
+    delay(1000);
 }
