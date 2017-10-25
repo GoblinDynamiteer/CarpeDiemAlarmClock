@@ -8,6 +8,7 @@ https://github.com/fergul/NeoMaple
 #include <Adafruit_NeoPixel.h>
 #define NUM_LEDS 24
 #define pin 6
+const int buzzer = 8; //buzzer to arduino pin 8
 
 /* Default data-pin is PA0 */
 
@@ -18,14 +19,15 @@ Adafruit_NeoPixel ledring = Adafruit_NeoPixel(NUM_LEDS, pin, NEO_GRB + NEO_KHZ80
 void setup()
 {
     ledring.begin();
+    pinMode(buzzer, OUTPUT); // Set buzzer - pin 8 as an output
 }
 
 void loop()
 {
     fade_mode(10);
-    blink_mode(1000, 50,0,0);
-    steady_light_mode(100,100,100);
-    random_blink(200);
+    //blink_mode(1000, 50,0,0);
+    //steady_light_mode(100,100,100);
+    //random_blink(200);
 }
 
 void fade_mode(int blink_delay)
@@ -83,4 +85,14 @@ void random_blink (int delay)
     int green = random (100);
     int blue = random (100);
     blink_mode (delay, red, green, blue);
+}
+
+
+
+void alarm_mode(int alarm_delay)
+{
+  tone(buzzer, 1000); // Send 1KHz sound signal...
+  delay(alarm_delay);        // ...for 1 sec
+  noTone(buzzer);     // Stop sound...
+  delay(alarm_delay);        // ...for 1sec
 }
