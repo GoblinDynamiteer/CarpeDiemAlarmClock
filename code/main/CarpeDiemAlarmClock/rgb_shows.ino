@@ -9,7 +9,25 @@ enum { INC_RED, INC_GREEN, INC_BLUE };
 enum { DEC_RED, DEC_GREEN, DEC_BLUE };
 
 
-void rgb_show_rainbow_spinner(void)
+void rgb_lightshow_splitter(void)
+{
+    static int n = 1;
+    static int red = 2;
+    static int blue = 2;
+    static int green = 3;
+
+    ring_set_nth_pixel(n, red, green, blue);
+
+    red = random(30);
+    green = random(30);
+    blue = random(30);
+
+    n == 6 ? n = 0 : n++;
+
+    delay(600);
+}
+
+void rgb_lightshow_rainbow_spinner(void)
 {
     static int blue = 20;
     static int red = 0;

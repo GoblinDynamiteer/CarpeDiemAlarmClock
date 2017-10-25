@@ -46,6 +46,22 @@ void ring_set_one_pixel(
     ring.show();
 }
 
+/* Sets every nth (third, fourth etc) pixel */
+void ring_set_nth_pixel(int n, int red, int green, int blue)
+{
+    ring_set_color(0, 0, 0);
+
+    for (int i = 0; i < RING_NUM_LEDS; i++)
+    {
+        if(!(i % n))
+        {
+            ring.setPixelColor(i, red, green, blue);
+        }
+    }
+
+    ring.show();
+}
+
 /* Blink color on / off, one cycle */
 void ring_blink_mode(
     int blink_delay, int red, int green, int blue)
