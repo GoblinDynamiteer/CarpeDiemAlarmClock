@@ -5,30 +5,19 @@
     LED-strip and LED-Ring Functions
  */
 
-
+/* Port of NeoPixel library */
 #include <NeoMaple.h>
-
-#define RING_NUM_LEDS 24
-#define STRIP_NUM_LEDS 8
-
-enum{RED, GREEN, BLUE};
 
 NeoMaple ring = NeoMaple(RING_NUM_LEDS, NEO_GRB + NEO_KHZ800);
 
 void rgb_init()
 {
     ring.begin();
-
-    for (int i = 0; i < RING_NUM_LEDS; i++)
-    {
-        ring.setPixelColor (i, 0, 0, 0);
-    }
-
-    ring.show();
+    ring_set_color(0, 0, 0);
 }
 
-void ring_blink_mode(
-    int blink_delay, int red, int green, int blue)
+/* Set LED-ring to specific color */
+void ring_set_color(int red, int green, int blue)
 {
     for (int i = 0; i < RING_NUM_LEDS; i++)
     {
@@ -36,58 +25,44 @@ void ring_blink_mode(
     }
 
     ring.show();
+}
+
+/* Blink color on / off, one cycle */
+void ring_blink_mode(
+    int blink_delay, int red, int green, int blue)
+{
+    ring_set_color(red, green, blue);
     delay(blink_delay);
 
-    for (int i = 0; i < RING_NUM_LEDS; i++)
-    {
-        ring.setPixelColor (i, 0, 0, 0);
-    }
-
-    ring.show();
+    ring_set_color(0, 0, 0);
     delay(blink_delay);
 }
 
 /* Fade LED-ring color up and down, one cycle */
-void ring_fade_mode(int blink_delay)
+void ring_fade_mode(int step_delay, int fade_color, int pwm_limit)
 {
-    for (int fade_led = 0; fade_led < 120; fade_led++)
-    {
-        for (int i = 0; i < 24; i++)
-        {
-            ring.setPixelColor (i, 0, 0, fade_led);
-        }
-        ring.show();
-        delay(blink_delay);
-    }
+    bool up = true;
 
-    for (int fade_led = 120; fade_led > 0; fade_led--)
+    for (int pwm = 1; pwm >= 1; up ? pwm++ : pwm--)
     {
-        for (int i = 0; i < 24; i++)
-        {
-            ring.setPixelColor (i, 0, 0, fade_led);
-        }
+        ring_set_color(
+            fade_color == COLOR_RED ? pwm : 0,
+            fade_color == COLOR_GREEN ? pwm : 0,
+            fade_color == COLOR_BLUE ? pwm : 0);
+        delay(step_delay);
 
-        ring.show();
-        delay(blink_delay);
+        if(pwm > pwm_limit)
+        {
+            up = !up;
+        }
     }
 }
 
-/* Set LED-ring color */
-void ring_steady_light(int red, int green, int blue)
+/* Blink LED-ring with random color, one cycle */
+void ring_random_blink(int delay, int max_pwm)
 {
-    for (int i = 0; i < RING_NUM_LEDS; i++)
-    {
-        ring.setPixelColor (i, red, green, blue);
-    }
-
-    ring.show();
-}
-
-/* Blink LED-ring with random color */
-void ring_random_blink(int delay)
-{
-    int red = random(100);
-    int green = random(100);
-    int blue = random(100);
+    int red = random(max_pwm);
+    int green = random(max_pwm);
+    int blue = random(max_pwm);
     ring_blink_mode(delay, red, green, blue);
 }
