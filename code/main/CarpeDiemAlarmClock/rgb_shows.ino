@@ -1,20 +1,22 @@
 /*  CarpeDiem Alarm clock
 
-    rtc.c
+    rgb_shows.c
 
-    LED-strip and LED-Ring Functions
+    Functions running cool neopixel demos / lightshows
  */
 
 enum { INC_RED, INC_GREEN, INC_BLUE };
 enum { DEC_RED, DEC_GREEN, DEC_BLUE };
-int blue = 20;
-int red = 0;
-int green = 0;
-int inc = INC_RED;
-int dec = DEC_BLUE;
+
 
 void rgb_show_rainbow_spinner(void)
 {
+    static int blue = 20;
+    static int red = 0;
+    static int green = 0;
+    static int inc = INC_RED;
+    static int dec = DEC_BLUE;
+
     for (size_t i = 0; i < RING_NUM_LEDS; i++)
     {
         ring_set_one_pixel(i, red, green, blue, false);
