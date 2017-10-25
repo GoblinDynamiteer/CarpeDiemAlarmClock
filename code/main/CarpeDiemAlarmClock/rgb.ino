@@ -21,9 +21,28 @@ void ring_set_color(int red, int green, int blue)
 {
     for (int i = 0; i < RING_NUM_LEDS; i++)
     {
-        ring.setPixelColor (i, red, green, blue);
+        ring.setPixelColor(i, red, green, blue);
     }
 
+    ring.show();
+}
+
+/* Set one pixel to specific color */
+void ring_set_one_pixel(
+    int pixel, int red, int green, int blue, bool clear_first)
+{
+    if(pixel > RING_NUM_LEDS)
+    {
+        return;
+    }
+
+    /* Clear all existing pixels */
+    if(clear_first)
+    {
+        ring_set_color(0, 0, 0);
+    }
+
+    ring.setPixelColor(pixel, red, green, blue);
     ring.show();
 }
 
