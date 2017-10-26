@@ -14,12 +14,6 @@ void setup()
 
 void loop()
 {
-  /*for(int i = 0; i < neoStrip; i++)
-  {
-    strip.setPixelColor(i, strip.Color(10, 118, 200));
-    strip.show();
-    delay(1000);
-  }*/
   for(int i = 0; i < 60; i++)
   {
     showSecond(i);
@@ -32,13 +26,13 @@ int showSecond(int second)
   for(int i = 0; i < 6; i++)
   {
     if((second >> i) & 1) //Testar det binära talet om det är en 1 eller 0, för att testa så skiftar vi siffran
-  {
-    strip.setPixelColor(i, strip.Color(10, 118, 200));
-  }
-  else
-  {
-    strip.setPixelColor(i, strip.Color(0, 0, 0));
-  }
+    {
+      strip.setPixelColor(i, strip.Color(10, 118, 200));
+    }
+    else
+    {
+      strip.setPixelColor(i, strip.Color(0, 0, 0));
+    }
   }
   strip.show();
 }
