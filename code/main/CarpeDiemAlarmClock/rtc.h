@@ -21,6 +21,7 @@ typedef struct
     uint8_t month;
     uint8_t day;
     uint8_t weekday;
+    uint8_t last_sec;
 } rtc_time_struct;
 
 #endif
