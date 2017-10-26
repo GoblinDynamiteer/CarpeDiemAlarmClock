@@ -1,6 +1,6 @@
 /*  CarpeDiem Alarm clock
 
-    rtc.c
+    task.c
 
-    RTC Functions
+    FreeRTOS tasks
  */
