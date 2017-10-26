@@ -33,19 +33,11 @@ void setup_tasks()
         NULL);
 
     xTaskCreate(
-        blinker,
-        "blink_onboard_led",
-        configMINIMAL_STACK_SIZE,
-        NULL,
-        tskIDLE_PRIORITY + 2,
-        NULL);
-
-    xTaskCreate(
         serial_command,
         "serial_command",
-        configMINIMAL_STACK_SIZE,
+        configMINIMAL_STACK_SIZE + 128,
         NULL,
-        tskIDLE_PRIORITY + 4,
+        tskIDLE_PRIORITY + 2,
         NULL);
 
     vTaskStartScheduler();
@@ -56,21 +48,35 @@ static void serial_command(void *pvParameters)
 {
     while(1)
     {
-        if(serial_data_complete)
+        while(serial_available())
         {
-            while(serial_available())
-            {
-                serial_print(".");
-                char read_byte = (char)serial_read();
-                serial_data += read_byte;
+            char read_byte = (char)serial_read();
+            serial_data += read_byte;
 
-                if (read_byte == '\n')
+            if (read_byte == '\n')
+            {
+                switch (serial_data[0])
                 {
-                    serial_data_complete = false;
-                    handle_command();
-                }
+                    case 'S': // Set time/date
+                        serial_print_ln(serial_data.substring(1, 3));
+                        serial_print_ln(serial_data.substring(3, 5));
+                        break;
+
+                    case 'T': // Print time
+                        rtc_serial_print();
+                        break;
+
+                    case 'Q': // Print time
+                        serial_print_ln("Hello!");
+                        break;
+
+                    default:
+                        break;
+            }
             }
         }
+
+        vTaskDelay(20);
     }
 }
 
@@ -80,19 +86,10 @@ static void get_rtc_time(void *pvParameters)
     while(1)
     {
         rtc_update();
-        vTaskDelay(50);
+        vTaskDelay(900);
     }
 }
 
-/* Updates rtc_time struct from RTC device */
-static void blinker(void *pvParameters)
-{
-    while(1)
-    {
-        toggle_on_board_led();
-        vTaskDelay(1000);
-    }
-}
 
 /* Displays current time on LED-rings and LED-strip */
 static void show_time_on_rgb(void *pvParameters)
@@ -104,6 +101,6 @@ static void show_time_on_rgb(void *pvParameters)
             strip_show_second(rtc_second(), 0, 0, 10);
         }
 
-        vTaskDelay(20);
+        vTaskDelay(100);
     }
 }

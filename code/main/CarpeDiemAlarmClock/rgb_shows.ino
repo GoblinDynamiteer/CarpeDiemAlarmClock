@@ -8,7 +8,7 @@
 enum { INC_RED, INC_GREEN, INC_BLUE };
 enum { DEC_RED, DEC_GREEN, DEC_BLUE };
 
-#define SHOW_MAX_PWM 10
+#define SHOW_MAX_PWM 30
 
 void rgb_lightshow_splitter(void)
 {
@@ -19,35 +19,35 @@ void rgb_lightshow_splitter(void)
 
     ring_set_nth_pixel(n, red, green, blue);
 
-    red = random(30);
-    green = random(30);
-    blue = random(30);
+    red = random(SHOW_MAX_PWM);
+    green = random(SHOW_MAX_PWM);
+    blue = random(SHOW_MAX_PWM);
 
     n == 6 ? n = 0 : n++;
 
-    delay(600);
+    delay(30);
 }
 
 void rgb_lightshow_rainbow_spinner(void)
 {
-    static uint8_t blue = SHOW_MAX_PWM;
-    static uint8_t red = 0;
-    static uint8_t green = 0;
+    static int16_t blue = SHOW_MAX_PWM;
+    static int16_t red = 0;
+    static int16_t green = 0;
     static uint8_t inc = INC_RED;
     static uint8_t dec = DEC_BLUE;
 
     for (size_t i = 0; i < RING_NUM_LEDS; i++)
     {
         ring_set_one_pixel(i, red, green, blue, false);
-        delay(30);
+        delay(40);
 
-        inc == INC_BLUE ? blue++ : 0;
-        inc == INC_RED ? red++ : 0;
-        inc == INC_GREEN ? green++ : 0;
+        (inc == INC_BLUE) ? blue++ : 0;
+        (inc == INC_RED) ? red++ : 0;
+        (inc == INC_GREEN) ? green++ : 0;
 
-        dec == DEC_BLUE ? blue-- : 0;
-        dec == DEC_RED ? red-- : 0;
-        dec == DEC_GREEN ? green-- : 0;
+        (dec == DEC_RED) ? red-- : 0;
+        (dec == DEC_BLUE) ? blue-- : 0;
+        (dec == DEC_GREEN) ? green-- : 0;
 
         if(red > SHOW_MAX_PWM)
         {

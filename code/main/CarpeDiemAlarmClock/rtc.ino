@@ -17,8 +17,9 @@ rtc_time_struct rtc_time;
 
 void rtc_init()
 {
-    rtc_update();
     rtc_time.last_sec = 61;
+    rtc_set(30, 20, 12, 4, 26, 10, 17);
+    rtc_update();
 }
 
 /* Sets time and date in RTC */
@@ -55,16 +56,21 @@ void rtc_update()
 }
 
 /* Prints date and time to serial */
-void rtc_serial_print()
+void rtc_serial_print(void)
 {
     rtc_update();
 
     serial_print(String(rtc_time.hour) + ":"  +
                 String(rtc_time.minute) + ":" +
+                String(rtc_time.second) + "\n");
+
+    /*
+    serial_print(String(rtc_time.hour) + ":"  +
+                String(rtc_time.minute) + ":" +
                 String(rtc_time.second) + "\n" +
                 "20" + String(rtc_time.year) + "-" +
                 String(rtc_time.month) + "-" +
-                String(rtc_time.day) + "\n");
+                String(rtc_time.day) + "\n"); */
 }
 
 /* Check if a second has ticked since last check */

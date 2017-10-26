@@ -13,11 +13,8 @@ void setup()
     rgb_init();
     rtc_init();
     command_init();
-
-    rtc_set(30, 20, 12, 4, 26, 10, 17);
     Serial2.begin(SETTINGS_BAUD_RATE);
-    delay(100);
-
+    toggle_on_board_led_n_times(10); // Debug
     setup_tasks();
     vTaskStartScheduler();
 }
