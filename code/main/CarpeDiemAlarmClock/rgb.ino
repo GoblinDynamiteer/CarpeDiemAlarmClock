@@ -95,13 +95,14 @@ void ring_fade_mode(int step_delay, int fade_color, int pwm_limit)
 }
 
 /* OBS Rebuild for strip */
-int strip_show_second(int second)
+void strip_show_second(
+    uint8_t second,uint8_t red, uint8_t green, uint8_t blue)
 {
     for(int i = 0; i < 6; i++)
     {
         if((second >> i) & 1)
         {
-            ring.setPixelColor(i, ring.Color(10, 118, 200));
+            ring.setPixelColor(i, ring.Color(red, green, blue));
         }
 
         else
