@@ -18,7 +18,15 @@ rtc_time_struct rtc_time;
 void rtc_init()
 {
     rtc_time.last_sec = 61;
-    rtc_set(30, 20, 12, 4, 26, 10, 17);
+    rtc_set(
+        30,
+        20,
+        12,
+        RTC_DEFAULT_WEEKDAY,
+        RTC_DEFAULT_DAY,
+        RTC_DEFAULT_MONTH,
+        RTC_DEFAULT_YEAR
+    );
     rtc_update();
 }
 
@@ -34,6 +42,19 @@ void rtc_set(uint8_t s, uint8_t m, uint8_t h, uint8_t dow,
         dom,    // Day of month
         month,  // Month
         year);   // Year
+}
+
+/* Sets time and date in RTC */
+void rtc_set_hour_minute(uint8_t h, uint8_t m)
+{
+    rtc_set(
+        RTC_DEFAULT_SECOND,
+        m,
+        h,
+        rtc_time.weekday,
+        rtc_time.day,
+        rtc_time.month,
+        rtc_time.year);
 }
 
 uint8_t rtc_second()

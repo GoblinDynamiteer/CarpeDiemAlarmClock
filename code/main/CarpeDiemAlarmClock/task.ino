@@ -13,9 +13,12 @@
 
 String serial_data;
 bool serial_data_complete;
+SemaphoreHandle_t semaphore = NULL;
 
 void setup_tasks()
 {
+    semaphore = xSemaphoreCreateMutex();
+
     xTaskCreate(
         get_rtc_time,
         "get_time",
@@ -37,7 +40,7 @@ void setup_tasks()
         "serial_command",
         configMINIMAL_STACK_SIZE + 128,
         NULL,
-        tskIDLE_PRIORITY + 2,
+        tskIDLE_PRIORITY + 3,
         NULL);
 
     vTaskStartScheduler();
@@ -55,28 +58,34 @@ static void serial_command(void *pvParameters)
 
             if (read_byte == '\n')
             {
+                serial_print_ln("Got command: " + serial_data);
+
                 switch (serial_data[0])
                 {
-                    case 'S': // Set time/date
-                        serial_print_ln(serial_data.substring(1, 3));
-                        serial_print_ln(serial_data.substring(3, 5));
+                    case 'S': // Set time as HH:MM -> S1245
+                        rtc_set_hour_minute(
+                            serial_data.substring(1, 3).toInt(),
+                            serial_data.substring(3, 5).toInt()
+                        );
                         break;
 
-                    case 'T': // Print time
+                    case 'T': // Print time as HH:MM:SS
                         rtc_serial_print();
                         break;
 
-                    case 'Q': // Print time
+                    case 'Q': // Test
                         serial_print_ln("Hello!");
                         break;
 
                     default:
                         break;
-            }
+                }
+
+                serial_data = "";
             }
         }
 
-        vTaskDelay(20);
+        vTaskDelay(40);
     }
 }
 
