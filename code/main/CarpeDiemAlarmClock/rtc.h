@@ -24,4 +24,6 @@ typedef struct
     uint8_t last_sec;
 } rtc_time_struct;
 
+extern rtc_time_struct rtc_time;
+
 #endif

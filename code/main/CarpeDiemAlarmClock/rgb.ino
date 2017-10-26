@@ -15,6 +15,7 @@ void rgb_init()
 {
     ring.begin();
     ring_set_color(0, 0, 0);
+    on_board_led_init();
 }
 
 /* Set LED-ring to specific color */
