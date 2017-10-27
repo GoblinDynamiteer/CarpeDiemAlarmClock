@@ -40,9 +40,19 @@ const String device_name = "CarpeDiem Alarm Clock";
 #define SETTINGS_BAUD_RATE 9600
 #define SETTING_SERIAL_DATA_COMMAND_SIZE 12
 
-enum { OFF, ON };
-uint8_t status_alarm;
-uint8_t status_buzzer;
-uint8_t status_rgb;
+#define JOYSTICK_PIN_Y PA6
+#define JOYSTICK_PIN_X PA7
+#define JOYSTICK_PIN_SW PA5
+
+#define JOYSTICK_MEDIAN_VALUE 2900
+#define JOYSTICK_THRESHOLD 500
+#define JOYSTICK_THRESHOLD_LEFT (JOYSTICK_MEDIAN_VALUE - JOYSTICK_THRESHOLD)
+#define JOYSTICK_THRESHOLD_RIGHT (JOYSTICK_MEDIAN_VALUE + JOYSTICK_THRESHOLD)
+#define JOYSTICK_THRESHOLD_UP (JOYSTICK_MEDIAN_VALUE - JOYSTICK_THRESHOLD)
+#define JOYSTICK_THRESHOLD_DOWN (JOYSTICK_MEDIAN_VALUE + JOYSTICK_THRESHOLD)
+
+bool status_alarm;
+bool status_buzzer;
+bool status_rgb;
 
 #endif

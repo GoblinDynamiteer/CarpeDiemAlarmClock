@@ -54,6 +54,14 @@ void setup_tasks()
         tskIDLE_PRIORITY + 2,
         NULL);
 
+    xTaskCreate(
+        joystick_input,
+        "joystick",
+        configMINIMAL_STACK_SIZE,
+        NULL,
+        tskIDLE_PRIORITY + 2,
+        NULL);
+
     vTaskStartScheduler();
 }
 
@@ -167,6 +175,16 @@ static void rgb_display_handler(void *pvParameters)
         if(xSemaphoreTake(semaphore_rgb,
             (TickType_t)300) == pdTRUE)
         {
+            if(!status_rgb)
+            {
+                rgb_all_led_off();
+
+                while(!status_rgb)
+                {
+                    vTaskDelay(100);
+                }
+            }
+
             rgb_show_func[current_rgb_show_mode]();
             strip_set_status_bits();
             xSemaphoreGive(semaphore_rgb);
@@ -186,5 +204,58 @@ static void rgb_updater(void *pvParameters)
             rgb_update();
             xSemaphoreGive(semaphore_rgb);
         }
+    }
+}
+
+/* Handle joystick input */
+static void joystick_input(void *pvParameters)
+{
+    while(1)
+    {
+        int y = analogRead(JOYSTICK_PIN_Y);
+        int x = analogRead(JOYSTICK_PIN_X);
+        int sw = !digitalRead(JOYSTICK_PIN_SW);
+
+        /* Joystick left -- toggle alarm */
+        if (analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
+        {
+            status_toggle_alarm();
+            while(analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
+            {
+                vTaskDelay(1);
+            }
+        }
+
+        /* Joystick left -- toggle buzzer */
+        if (analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
+        {
+            status_toggle_buzzer();
+            while(analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
+            {
+                vTaskDelay(1);
+            }
+        }
+
+        /* Joystick up -- toggle rgb */
+        if (analogRead(JOYSTICK_PIN_Y) < JOYSTICK_THRESHOLD_UP)
+        {
+            status_toggle_rgb();
+            while(analogRead(JOYSTICK_PIN_Y) < JOYSTICK_THRESHOLD_UP)
+            {
+                vTaskDelay(1);
+            }
+        }
+
+        /* Joystick down -- cycle rgb show modes */
+        if (analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN)
+        {
+            rgb_lightshows_select(RGB_SHOW_NEXT);
+            while(analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN)
+            {
+                vTaskDelay(1);
+            }
+        }
+
+        vTaskDelay(100);
     }
 }

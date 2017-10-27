@@ -32,6 +32,16 @@ void rgb_all_led_test()
     }
 }
 
+void rgb_all_led_off()
+{
+    for (int i = 0; i < RGB_TOTAL_NUM_LED; i++)
+    {
+        ring.setPixelColor(i, 0, 0, 0);
+    }
+
+    ring.show();
+}
+
 void rgb_update()
 {
     if(show_pixels)

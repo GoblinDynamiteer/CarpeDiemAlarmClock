@@ -8,10 +8,16 @@
         PB07 SDA
  */
 #include "settings.h"
+bool status_change = false;
 
 void on_board_led_init()
 {
     pinMode(SETTING_ON_BOARD_LED_PIN, OUTPUT);
+}
+
+void joystick_init()
+{
+    pinMode(JOYSTICK_PIN_SW, INPUT_PULLUP);
 }
 
 void serial_begin()
@@ -33,6 +39,35 @@ void serial_begin()
     #endif
 }
 
+void status_toggle_alarm()
+{
+    status_alarm = !status_alarm;
+    status_change = true;
+}
+
+void status_toggle_rgb()
+{
+    status_rgb = !status_rgb;
+    status_change = true;
+}
+
+void status_toggle_buzzer()
+{
+    status_buzzer = !status_buzzer;
+    status_change = true;
+}
+
+bool status_changed()
+{
+    if(status_change)
+    {
+        status_change = false;
+        return true;
+    }
+
+    return false;
+}
+
 /* Toggles onboard LED */
 void toggle_on_board_led()
 {
@@ -48,5 +83,4 @@ void toggle_on_board_led_n_times(uint8_t n)
         toggle_on_board_led();
         delay(100);
     }
-
 }

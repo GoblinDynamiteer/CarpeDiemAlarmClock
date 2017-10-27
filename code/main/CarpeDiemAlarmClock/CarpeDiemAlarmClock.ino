@@ -10,13 +10,14 @@
 
 void setup()
 {
-    status_alarm = ON;
-    status_buzzer = ON;
-    status_rgb = ON;
+    status_alarm = true;
+    status_buzzer = true;
+    status_rgb = true;
 
     serial_begin();
     rtc_init();
     rgb_init();
+    joystick_init();
     setup_tasks();
 }
 
