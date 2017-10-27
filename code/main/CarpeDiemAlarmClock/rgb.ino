@@ -21,7 +21,7 @@ void rgb_init()
 /* Set LED-ring to specific color */
 void ring_set_color(int red, int green, int blue)
 {
-    for (int i = 0; i < RING_NUM_LEDS; i++)
+    for (int i = 0; i < 24; i++)
     {
         ring.setPixelColor(i, red, green, blue);
     }
