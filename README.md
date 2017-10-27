@@ -15,14 +15,18 @@ CarpeDiemAlarmClock is an alarm clock that is waking you up "gently" by graduall
 - The alarm clock also has an option to sound a buzzer at alarm time.  
 - The alarm clock will have several modes: Alarm on/off, sound on/off, light on/off.  
 
-### Code 
+### Code
 - Code is built with the Arduino core for an STM32F103C8 devboard, using the [STM32duino](https://github.com/rogerclarkmelbourne/Arduino_STM32) tools.  
 - FreeRTOS is used, with several tasks and semaphores.  
 
-### Hardware 
+### Hardware
 - STM32F103C8 devboard (Bluepill clone)
 - Adafruit NeoPixel 24-LED ring (show hour/minute, wake up, cool light shows)
 - Adafruit NeoPixel 8-LED strip (show seconds in binary format, and status)
 - DS3231 RTC Breakout board  
 - HC‑05 bluetooth module (for serial communication / app)
 - Joystick module  (user input, setting alarm/time etc)
+
+### Images  
+Serial commands   
+![Serial commands](https://raw.githubusercontent.com/GoblinDynamiteer/CarpeDiemAlarmClock/master/doc/img/screenshots/serial_commands.png) 
