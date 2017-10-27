@@ -35,40 +35,40 @@ void rgb_lightshow_rainbow_spinner(void)
     static int16_t green = 0;
     static uint8_t inc = INC_RED;
     static uint8_t dec = DEC_BLUE;
+    static uint8_t led_index = 0;
 
-    for (size_t i = 0; i < RING_NUM_LEDS; i++)
+    ring_set_one_pixel(led_index++, red, green, blue, false, false);
+
+    (inc == INC_BLUE) ? blue++ : 0;
+    (inc == INC_RED) ? red++ : 0;
+    (inc == INC_GREEN) ? green++ : 0;
+
+    (dec == DEC_RED) ? red-- : 0;
+    (dec == DEC_BLUE) ? blue-- : 0;
+    (dec == DEC_GREEN) ? green-- : 0;
+
+    if(red > SHOW_MAX_PWM)
     {
-        ring_set_one_pixel(i, red, green, blue, false);
-        delay(40);
-
-        (inc == INC_BLUE) ? blue++ : 0;
-        (inc == INC_RED) ? red++ : 0;
-        (inc == INC_GREEN) ? green++ : 0;
-
-        (dec == DEC_RED) ? red-- : 0;
-        (dec == DEC_BLUE) ? blue-- : 0;
-        (dec == DEC_GREEN) ? green-- : 0;
-
-        if(red > SHOW_MAX_PWM)
-        {
-            dec = DEC_RED;
-            inc = INC_GREEN;
-        }
-
-        if(green > SHOW_MAX_PWM)
-        {
-            dec = DEC_GREEN;
-            inc = INC_BLUE;
-        }
-
-        if(blue > SHOW_MAX_PWM)
-        {
-            dec = DEC_BLUE;
-            inc = INC_RED;
-        }
-
-        blue = blue <= 0 ? 0 : blue;
-        red = red <= 0 ? 0 : red;
-        green = green <= 0 ? 0 : green;
+        dec = DEC_RED;
+        inc = INC_GREEN;
     }
+
+    if(green > SHOW_MAX_PWM)
+    {
+        dec = DEC_GREEN;
+        inc = INC_BLUE;
+    }
+
+    if(blue > SHOW_MAX_PWM)
+    {
+        dec = DEC_BLUE;
+        inc = INC_RED;
+    }
+
+    blue = blue <= 0 ? 0 : blue;
+    red = red <= 0 ? 0 : red;
+    green = green <= 0 ? 0 : green;
+    led_index = led_index >= RING_NUM_LEDS ? 0 : led_index;
+
+    rgb_need_update();
 }

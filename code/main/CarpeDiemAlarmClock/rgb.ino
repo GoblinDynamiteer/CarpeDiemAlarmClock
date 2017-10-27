@@ -10,12 +10,14 @@
 #include <NeoMaple.h>
 
 NeoMaple ring = NeoMaple(RGB_TOTAL_NUM_LED, NEO_GRB + NEO_KHZ800);
+bool show_pixels;
 
 void rgb_init()
 {
     ring.begin();
     on_board_led_init();
     rgb_all_led_test();
+    show_pixels = false;
 }
 
 void rgb_all_led_test()
@@ -26,6 +28,20 @@ void rgb_all_led_test()
         delay(20);
         ring.show();
     }
+}
+
+void rgb_update()
+{
+    if(show_pixels)
+    {
+        ring.show();
+        show_pixels = false;
+    }
+}
+
+void rgb_need_update()
+{
+    show_pixels = true;
 }
 
 /* Set LED-ring to specific color */
@@ -52,7 +68,8 @@ void strip_set_color(int red, int green, int blue)
 
 /* Set one pixel to specific color */
 void ring_set_one_pixel(
-    int pixel, int red, int green, int blue, bool clear_first)
+    int pixel, int red, int green, int blue,
+    bool clear_first, bool update = true)
 {
     if(pixel > RING_NUM_LEDS)
     {
@@ -66,7 +83,11 @@ void ring_set_one_pixel(
     }
 
     ring.setPixelColor(pixel, red, green, blue);
-    ring.show();
+
+    if(update)
+    {
+        ring.show();
+    }
 }
 
 /* Sets every nth (third, fourth etc) pixel */
@@ -134,7 +155,7 @@ void strip_show_second(
         }
     }
 
-    ring.show();
+    rgb_need_update();
 }
 
 /* Blink LED-ring with random color, one cycle */

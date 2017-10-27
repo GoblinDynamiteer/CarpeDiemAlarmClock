@@ -13,15 +13,34 @@
 
 String serial_data;
 bool serial_data_complete;
-SemaphoreHandle_t semaphore_rtc = NULL;
+
+SemaphoreHandle_t semaphore_rtc = NULL; // RTC Device access
+SemaphoreHandle_t semaphore_rgb = NULL; // NeoPixel access
 
 void setup_tasks()
 {
     semaphore_rtc = xSemaphoreCreateMutex();
+    semaphore_rgb = xSemaphoreCreateMutex();
 
     xTaskCreate(
         time_handler,
         "time_handler",
+        configMINIMAL_STACK_SIZE,
+        NULL,
+        tskIDLE_PRIORITY + 2,
+        NULL);
+
+    xTaskCreate(
+        rgb_display_handler,
+        "rgb_display_handler",
+        configMINIMAL_STACK_SIZE,
+        NULL,
+        tskIDLE_PRIORITY + 2,
+        NULL);
+
+    xTaskCreate(
+        rgb_updater,
+        "rgb_updater",
         configMINIMAL_STACK_SIZE,
         NULL,
         tskIDLE_PRIORITY + 2,
@@ -50,19 +69,24 @@ static void serial_command(void *pvParameters)
 
             if (read_byte == '\n')
             {
-                serial_print_ln("Got command: " + serial_data);
-
                 switch (serial_data[0])
                 {
                     case 'S': // Set time as HH:MM -> S1245
                         if(xSemaphoreTake(semaphore_rtc,
                             (TickType_t)200) == pdTRUE)
                         {
+                            serial_print_ln("Setting RTC time to " +
+                                serial_data.substring(1, 3) + ":" +
+                                serial_data.substring(3, 5));
                             rtc_set_hour_minute(
                                 serial_data.substring(1, 3).toInt(),
                                 serial_data.substring(3, 5).toInt()
                             );
                             xSemaphoreGive(semaphore_rtc);
+                        }
+                        else
+                        {
+                            serial_print_ln("Error: Could not set time!");
                         }
                         break;
 
@@ -73,10 +97,15 @@ static void serial_command(void *pvParameters)
                             rtc_serial_print();
                             xSemaphoreGive(semaphore_rtc);
                         }
+                        else
+                        {
+                            serial_print_ln(
+                                "Error: Unable to display current time!");
+                        }
                         break;
 
                     case 'Q': // Test
-                        serial_print_ln("Hello!");
+                        serial_print_ln("Connected to " + device_name + "!");
                         break;
 
                     default:
@@ -103,12 +132,46 @@ static void time_handler(void *pvParameters)
 
             if(rtc_has_ticked())
             {
-                strip_show_second(rtc_second(), 0, 0, 10);
+                if(xSemaphoreTake(semaphore_rgb,
+                    (TickType_t)200) == pdTRUE)
+                {
+                    strip_show_second(rtc_second(), 0, 0, 10);
+                    xSemaphoreGive(semaphore_rgb);
+                }
             }
 
             xSemaphoreGive(semaphore_rtc);
         }
 
         vTaskDelay(100);
+    }
+}
+
+/* Displays current time on LED-rings and LED-strip */
+static void rgb_display_handler(void *pvParameters)
+{
+    while(1)
+    {
+        if(xSemaphoreTake(semaphore_rgb,
+            (TickType_t)300) == pdTRUE)
+        {
+            rgb_lightshow_rainbow_spinner();
+            xSemaphoreGive(semaphore_rgb);
+            vTaskDelay(RBG_SHOW_RAINBOW_SPINNER_DELAY);
+        }
+    }
+}
+
+/* Updates RGBs if needed */
+static void rgb_updater(void *pvParameters)
+{
+    while(1)
+    {
+        if(xSemaphoreTake(semaphore_rgb,
+            (TickType_t)100) == pdTRUE)
+        {
+            rgb_update();
+            xSemaphoreGive(semaphore_rgb);
+        }
     }
 }

@@ -34,6 +34,8 @@
     #define serial_print_ln(x) Serial3.println(x)
 #endif
 
+const String device_name = "CarpeDiem Alarm Clock";
+
 #define SETTING_ON_BOARD_LED_PIN PC13
 #define SETTINGS_BAUD_RATE 9600
 #define SETTING_SERIAL_DATA_COMMAND_SIZE 12
