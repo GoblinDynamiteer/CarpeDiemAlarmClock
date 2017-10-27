@@ -13,23 +13,15 @@
 
 String serial_data;
 bool serial_data_complete;
-SemaphoreHandle_t semaphore = NULL;
+SemaphoreHandle_t semaphore_rtc = NULL;
 
 void setup_tasks()
 {
-    semaphore = xSemaphoreCreateMutex();
+    semaphore_rtc = xSemaphoreCreateMutex();
 
     xTaskCreate(
-        get_rtc_time,
-        "get_time",
-        configMINIMAL_STACK_SIZE,
-        NULL,
-        tskIDLE_PRIORITY + 2,
-        NULL);
-
-    xTaskCreate(
-        show_time_on_rgb,
-        "show_time",
+        time_handler,
+        "time_handler",
         configMINIMAL_STACK_SIZE,
         NULL,
         tskIDLE_PRIORITY + 2,
@@ -40,7 +32,7 @@ void setup_tasks()
         "serial_command",
         configMINIMAL_STACK_SIZE + 128,
         NULL,
-        tskIDLE_PRIORITY + 3,
+        tskIDLE_PRIORITY + 2,
         NULL);
 
     vTaskStartScheduler();
@@ -63,14 +55,24 @@ static void serial_command(void *pvParameters)
                 switch (serial_data[0])
                 {
                     case 'S': // Set time as HH:MM -> S1245
-                        rtc_set_hour_minute(
-                            serial_data.substring(1, 3).toInt(),
-                            serial_data.substring(3, 5).toInt()
-                        );
+                        if(xSemaphoreTake(semaphore_rtc,
+                            (TickType_t)200) == pdTRUE)
+                        {
+                            rtc_set_hour_minute(
+                                serial_data.substring(1, 3).toInt(),
+                                serial_data.substring(3, 5).toInt()
+                            );
+                            xSemaphoreGive(semaphore_rtc);
+                        }
                         break;
 
                     case 'T': // Print time as HH:MM:SS
-                        rtc_serial_print();
+                        if(xSemaphoreTake(semaphore_rtc,
+                            (TickType_t)200) == pdTRUE)
+                        {
+                            rtc_serial_print();
+                            xSemaphoreGive(semaphore_rtc);
+                        }
                         break;
 
                     case 'Q': // Test
@@ -85,29 +87,26 @@ static void serial_command(void *pvParameters)
             }
         }
 
-        vTaskDelay(40);
+        vTaskDelay(100);
     }
 }
-
-/* Updates rtc_time struct from RTC device */
-static void get_rtc_time(void *pvParameters)
-{
-    while(1)
-    {
-        rtc_update();
-        vTaskDelay(900);
-    }
-}
-
 
 /* Displays current time on LED-rings and LED-strip */
-static void show_time_on_rgb(void *pvParameters)
+static void time_handler(void *pvParameters)
 {
     while(1)
     {
-        if(rtc_has_ticked())
+        if(xSemaphoreTake(semaphore_rtc,
+            (TickType_t)200) == pdTRUE)
         {
-            strip_show_second(rtc_second(), 0, 0, 10);
+            rtc_update();
+
+            if(rtc_has_ticked())
+            {
+                strip_show_second(rtc_second(), 0, 0, 10);
+            }
+
+            xSemaphoreGive(semaphore_rtc);
         }
 
         vTaskDelay(100);
