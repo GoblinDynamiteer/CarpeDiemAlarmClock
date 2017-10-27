@@ -9,19 +9,40 @@
 /* Port of NeoPixel library */
 #include <NeoMaple.h>
 
-NeoMaple ring = NeoMaple(RING_NUM_LEDS, NEO_GRB + NEO_KHZ800);
+NeoMaple ring = NeoMaple(RGB_TOTAL_NUM_LED, NEO_GRB + NEO_KHZ800);
 
 void rgb_init()
 {
     ring.begin();
-    ring_set_color(0, 0, 0);
     on_board_led_init();
+    rgb_all_led_test();
+}
+
+void rgb_all_led_test()
+{
+    for (int i = 0; i < RGB_TOTAL_NUM_LED; i++)
+    {
+        ring.setPixelColor(i, 10, 10, 10);
+        delay(20);
+        ring.show();
+    }
 }
 
 /* Set LED-ring to specific color */
 void ring_set_color(int red, int green, int blue)
 {
-    for (int i = 0; i < 24; i++)
+    for (int i = 0; i < RING_NUM_LEDS; i++)
+    {
+        ring.setPixelColor(i, red, green, blue);
+    }
+
+    ring.show();
+}
+
+/* Set LED-ring to specific color */
+void strip_set_color(int red, int green, int blue)
+{
+    for (int i = STRIP_LED_INDEX_START; i < STRIP_LED_INDEX_END; i++)
     {
         ring.setPixelColor(i, red, green, blue);
     }
@@ -95,20 +116,21 @@ void ring_fade_mode(int step_delay, int fade_color, int pwm_limit)
     }
 }
 
-/* OBS Rebuild for strip */
+/* Shows seconds on LED-strip */
 void strip_show_second(
     uint8_t second,uint8_t red, uint8_t green, uint8_t blue)
 {
-    for(int i = 0; i < 32; i++)
+    uint8_t shift_amount = 0;
+    for(uint8_t i = STRIP_LED_INDEX_START; i < STRIP_LED_INDEX_END; i++)
     {
-        if((second >> i) & 1)
+        if((second >> shift_amount++) & 1)
         {
-            ring.setPixelColor(i+24, ring.Color(red, green, blue));
+            ring.setPixelColor(i, red, green, blue);
         }
 
         else
         {
-            ring.setPixelColor(i+24, ring.Color(0, 0, 0));
+            ring.setPixelColor(i, 0, 0, 0);
         }
     }
 
