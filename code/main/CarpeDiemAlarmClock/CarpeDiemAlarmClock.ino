@@ -3,7 +3,7 @@
     https://github.com/GoblinDynamiteer/CarpeDiemAlarmClock
  */
 
-//#include <MapleFreeRTOS900.h>
+#include <MapleFreeRTOS900.h>
 #include "rgb.h"
 #include "rtc.h"
 #include "settings.h"
@@ -12,14 +12,13 @@ void setup()
 {
     rgb_init();
     rtc_init();
-    Serial2.begin(9600);
-    rtc_set(30, 20, 12, 4, 26, 10, 17);
+    command_init();
+    Serial2.begin(SETTINGS_BAUD_RATE);
+    toggle_on_board_led_n_times(10); // Debug
+    setup_tasks();
+    vTaskStartScheduler();
 }
 
 void loop()
 {
-    if(rtc_has_ticked())
-    {
-        strip_show_second(rtc_second());
-    }
 }

@@ -1,17 +1,6 @@
 #ifndef RTC_H
 #define RTC_H
 
-enum
-{
-    RTC_SUNDAY,
-    RTC_MONDAY,
-    RTC_TUESDAY,
-    RTC_WEDNESDAY,
-    RTC_THURSDAY,
-    RTC_FRIDAY,
-    RTC_SATURDAY
-};
-
 typedef struct
 {
     uint8_t hour;
@@ -21,6 +10,15 @@ typedef struct
     uint8_t month;
     uint8_t day;
     uint8_t weekday;
+    uint8_t last_sec;
 } rtc_time_struct;
+
+#define RTC_DEFAULT_YEAR 17
+#define RTC_DEFAULT_MONTH 10
+#define RTC_DEFAULT_DAY 26
+#define RTC_DEFAULT_SECOND 0
+#define RTC_DEFAULT_WEEKDAY 1
+
+extern rtc_time_struct rtc_time;
 
 #endif

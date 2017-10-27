@@ -13,10 +13,20 @@
 #include "settings.h"
 
 uRTCLib rtc;
-rtc_time_struct time;
+rtc_time_struct rtc_time;
 
 void rtc_init()
 {
+    rtc_time.last_sec = 61;
+    rtc_set(
+        30,
+        20,
+        12,
+        RTC_DEFAULT_WEEKDAY,
+        RTC_DEFAULT_DAY,
+        RTC_DEFAULT_MONTH,
+        RTC_DEFAULT_YEAR
+    );
     rtc_update();
 }
 
@@ -34,46 +44,63 @@ void rtc_set(uint8_t s, uint8_t m, uint8_t h, uint8_t dow,
         year);   // Year
 }
 
+/* Sets time and date in RTC */
+void rtc_set_hour_minute(uint8_t h, uint8_t m)
+{
+    rtc_set(
+        RTC_DEFAULT_SECOND,
+        m,
+        h,
+        rtc_time.weekday,
+        rtc_time.day,
+        rtc_time.month,
+        rtc_time.year);
+}
+
+uint8_t rtc_second()
+{
+    return rtc_time.second;
+}
+
+
 /* Read RTC data to struct */
 void rtc_update()
 {
     rtc.refresh();
-    time.hour = rtc.hour();
-    time.minute = rtc.minute();;
-    time.second = rtc.second();;
-    time.year = rtc.year();;
-    time.month = rtc.month();;
-    time.day = rtc.day();;
-    time.weekday = rtc.dayOfWeek();;
+    rtc_time.hour = rtc.hour();
+    rtc_time.minute = rtc.minute();
+    rtc_time.second = rtc.second();
+    rtc_time.year = rtc.year();
+    rtc_time.month = rtc.month();
+    rtc_time.day = rtc.day();
+    rtc_time.weekday = rtc.dayOfWeek();
 }
 
 /* Prints date and time to serial */
-void rtc_serial_print()
+void rtc_serial_print(void)
 {
     rtc_update();
 
-    serial_print(String(time.hour) + ":"  +
-                String(time.minute) + ":" +
-                String(time.second) + "\n" +
-                "20" + String(time.year) + "-" +
-                String(time.month) + "-" +
-                String(time.day) + "\n");
-}
+    serial_print(String(rtc_time.hour) + ":"  +
+                String(rtc_time.minute) + ":" +
+                String(rtc_time.second) + "\n");
 
-int rtc_second()
-{
-    return (int)time.second;
+    /*
+    serial_print(String(rtc_time.hour) + ":"  +
+                String(rtc_time.minute) + ":" +
+                String(rtc_time.second) + "\n" +
+                "20" + String(rtc_time.year) + "-" +
+                String(rtc_time.month) + "-" +
+                String(rtc_time.day) + "\n"); */
 }
 
 /* Check if a second has ticked since last check */
 bool rtc_has_ticked()
 {
-    static uint8_t last_tick = time.second;
     rtc_update();
-
-    if(last_tick != time.second)
+    if(rtc_time.second != rtc_time.last_sec)
     {
-        last_tick = time.second;
+        rtc_time.last_sec = rtc_time.second;
         return true;
     }
 
