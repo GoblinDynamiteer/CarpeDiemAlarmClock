@@ -50,6 +50,7 @@ void loop()
         Serial.println(xval);
         //fade_mode(10);
     }
+
     if (xval < 400)
     {
         //Up - Alarm
@@ -67,6 +68,7 @@ void loop()
 
         //blink_mode(1000,50,0,0);
     }
+
     if (yval > 800)
     {
         //Left - Light
@@ -84,6 +86,7 @@ void loop()
         //steady_light_mode(100,100,100);
 
     }
+
     if (yval < 400)
     {
         //Right - Sound
@@ -99,14 +102,6 @@ void loop()
         }
         delay(500);
         //random_blink(200);
-
-
-
-
-
-
-
-
     }
     if (swval == 0)
     {
@@ -122,85 +117,8 @@ void loop()
         Serial.println("Set time");
 
         else
-            {
-                Serial.println("Set alarm");
-            }
-        }
-
-        //turn_off_mode(0,0,0);
-    }
-    //fade_mode(10);
-    //blink_mode(1000, 50,0,0);
-    //steady_light_mode(100,100,100);
-    //random_blink(200);
-
-void fade_mode(int blink_delay)
-{
-    for (int fade_led = 0; fade_led < 100; fade_led++)
-    {
-        for (int i = 0; i < 24; i++)
         {
-            ledring.setPixelColor (i, fade_led, fade_led, fade_led);
+            Serial.println("Set alarm");
         }
-        ledring.show();
-        delay(blink_delay);
     }
-    for (int fade_led = 100; fade_led > 0; fade_led--)
-    {
-        for (int i = 0; i < 24; i++)
-        {
-            ledring.setPixelColor (i, fade_led, fade_led, fade_led);
-        }
-        ledring.show();
-        delay(blink_delay);
-    }
-}
-void blink_mode(int blink_delay, int red, int green, int blue)
-{
-    for (int i = 0; i <NUM_LEDS; i++)
-    {
-        ledring.setPixelColor (i, red, green, blue);
-    }
-    ledring.show();
-    delay(blink_delay);
-    /* code */
-
-
-    for (int i = 0; i <NUM_LEDS; i++)
-    {
-        ledring.setPixelColor (i, 0, 0, 0);
-    }
-    ledring.show();
-    delay(blink_delay);
-}
-void steady_light_mode(int red, int green, int blue)
-{
-    for (int i = 0; i < NUM_LEDS; i++)
-    {
-        ledring.setPixelColor (i, red, green, blue);
-    }
-    ledring.show();
-
-}
-void random_blink (int delay)
-{
-    int red = random(100);
-    int green = random (100);
-    int blue = random (100);
-    blink_mode (delay, red, green, blue);
-}
-void alarm_mode(int alarm_delay)
-{
-    tone(buzzer, 1000); // Send 1KHz sound signal...
-    delay(alarm_delay);        // ...for 1 sec
-    noTone(buzzer);     // Stop sound...
-    delay(alarm_delay);        // ...for 1sec
-}
-void turn_off_mode(int red, int green, int blue)
-{
-    for (int i = 0; i <NUM_LEDS; i++)
-    {
-        ledring.setPixelColor (i, 0, 0, 0);
-    }
-    ledring.show();
 }
