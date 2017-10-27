@@ -10,12 +10,12 @@
 #include <NeoMaple.h>
 #include "settings.h"
 
-NeoMaple ring = NeoMaple(RGB_TOTAL_NUM_LED, NEO_GRB + NEO_KHZ800);
+NeoMaple rgb = NeoMaple(RGB_TOTAL_NUM_LED, NEO_GRB + NEO_KHZ800);
 bool show_pixels;
 
 void rgb_init()
 {
-    ring.begin();
+    rgb.begin();
     on_board_led_init();
     rgb_lightshows_init();
     rgb_all_led_test();
@@ -26,9 +26,9 @@ void rgb_all_led_test()
 {
     for (int i = 0; i < RGB_TOTAL_NUM_LED; i++)
     {
-        ring.setPixelColor(i, 10, 10, 10);
+        rgb.setPixelColor(i, 10, 10, 10);
         delay(20);
-        ring.show();
+        rgb.show();
     }
 }
 
@@ -36,17 +36,17 @@ void rgb_all_led_off()
 {
     for (int i = 0; i < RGB_TOTAL_NUM_LED; i++)
     {
-        ring.setPixelColor(i, 0, 0, 0);
+        rgb.setPixelColor(i, 0, 0, 0);
     }
 
-    ring.show();
+    rgb.show();
 }
 
 void rgb_update()
 {
     if(show_pixels)
     {
-        ring.show();
+        rgb.show();
         show_pixels = false;
     }
 }
@@ -61,10 +61,10 @@ void ring_set_color(int red, int green, int blue)
 {
     for (int i = 0; i < RING_NUM_LEDS; i++)
     {
-        ring.setPixelColor(i, red, green, blue);
+        rgb.setPixelColor(i, red, green, blue);
     }
 
-    ring.show();
+    rgb.show();
 }
 
 /* Set LED-ring to specific color */
@@ -72,18 +72,39 @@ void strip_set_color(int red, int green, int blue)
 {
     for (int i = STRIP_LED_INDEX_START; i < STRIP_LED_INDEX_END; i++)
     {
-        ring.setPixelColor(i, red, green, blue);
+        rgb.setPixelColor(i, red, green, blue);
     }
 
-    ring.show();
+    rgb.show();
+}
+
+/* Set colors from selected index, lenght amount */
+void strip_set_color_from_lenght(uint8_t start_index, uint8_t lenght,
+    uint8_t red, uint8_t green, uint8_t blue)
+{
+    for (uint8_t i = 0; i < lenght; i++)
+    {
+        if(start_index >= RING_NUM_LEDS)
+        {
+            rgb.setPixelColor(start_index - RING_NUM_LEDS - 1,
+                red, green, blue);
+        }
+
+        else
+        {
+            rgb.setPixelColor(start_index, red, green, blue);
+        }
+
+        start_index++;
+    }
 }
 
 /* Set LED-ring to specific color */
 void strip_set_status_bits()
 {
-    ring.setPixelColor(STRIP_LED_STATUS_INDEX1, 0,
+    rgb.setPixelColor(STRIP_LED_STATUS_INDEX1, 0,
         status_alarm ? 20 : 0, 0);
-    ring.setPixelColor(STRIP_LED_STATUS_INDEX2, 0,
+    rgb.setPixelColor(STRIP_LED_STATUS_INDEX2, 0,
         status_buzzer ? 20 : 0, 0);
 
     rgb_need_update();
@@ -91,7 +112,7 @@ void strip_set_status_bits()
 
 /* Set one pixel to specific color */
 void ring_set_one_pixel(
-    int pixel, int red, int green, int blue,
+    uint8_t pixel, uint8_t red, uint8_t green, uint8_t blue,
     bool clear_first)
 {
     if(pixel > RING_NUM_LEDS)
@@ -105,31 +126,31 @@ void ring_set_one_pixel(
         ring_set_color(0, 0, 0);
     }
 
-    ring.setPixelColor(pixel, red, green, blue);
+    rgb.setPixelColor(pixel, red, green, blue);
 }
 
 /* Sets every nth (third, fourth etc) pixel */
-void ring_set_nth_pixel(int n, int red, int green, int blue)
+void ring_set_nth_pixel(uint8_t n, uint8_t red, uint8_t green, uint8_t blue)
 {
     ring_set_color(0, 0, 0);
 
-    for (int i = 0; i < RING_NUM_LEDS; i++)
+    for (uint8_t i = 0; i < RING_NUM_LEDS; i++)
     {
         if(!(i % n))
         {
-            ring.setPixelColor(i, red, green, blue);
+            rgb.setPixelColor(i, red, green, blue);
         }
 
         else
         {
-            ring.setPixelColor(i, 0, 0, 0);
+            rgb.setPixelColor(i, 0, 0, 0);
         }
     }
 }
 
 /* Blink color on / off, one cycle */
 void ring_blink_mode(
-    int blink_delay, int red, int green, int blue)
+    int blink_delay, uint8_t red, uint8_t green, uint8_t blue)
 {
     ring_set_color(red, green, blue);
     delay(blink_delay);
@@ -139,7 +160,7 @@ void ring_blink_mode(
 }
 
 /* Fade LED-ring color up and down, one cycle */
-void ring_fade_mode(int step_delay, int fade_color, int pwm_limit)
+void ring_fade_mode(int step_delay, int fade_color, uint8_t pwm_limit)
 {
     bool up = true;
 
@@ -167,12 +188,12 @@ void strip_show_second(
     {
         if((second >> shift_amount++) & 1)
         {
-            ring.setPixelColor(i, red, green, blue);
+            rgb.setPixelColor(i, red, green, blue);
         }
 
         else
         {
-            ring.setPixelColor(i, 0, 0, 0);
+            rgb.setPixelColor(i, 0, 0, 0);
         }
     }
 

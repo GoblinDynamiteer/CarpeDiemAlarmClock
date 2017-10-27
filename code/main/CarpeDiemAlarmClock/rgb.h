@@ -20,23 +20,29 @@ enum { DEC_RED, DEC_GREEN, DEC_BLUE };
 enum {
     RGB_SHOW_RAINBOW_SPINNER,
     RGB_SHOW_SPLITTER,
+    RGB_SHOW_PIE_CHASER,
     RGB_SHOW_MAX_MODES
 };
 
 #define RGB_SHOW_MAX_PWM 30
 #define RBG_SHOW_RAINBOW_SPINNER_DELAY 50
 #define RGB_SHOW_SPLITTER_DELAY 500
+#define RGB_SHOW_PIE_CHASER_DELAY 100
 
 #define RGB_SHOW_NEXT true
 #define RGB_SHOW_PREV false
 
+#define STRING_PIXEL_OFFSET(PIX, LEN) ((PIX + LEN) > RING_NUM_LEDS) ? \
+    (PIX + LEN - RING_NUM_LEDS) : (PIX + LEN)
+
 /* Function pointer used with tasks */
-void(*rgb_show_func[2])(void);
+void(*rgb_show_func[3])(void);
 uint8_t current_rgb_show_mode; // Index for function pointer and delay array
-uint16_t rgb_show_delay[2] =
+uint16_t rgb_show_delay[3] =
 {
     RBG_SHOW_RAINBOW_SPINNER_DELAY,
-    RGB_SHOW_SPLITTER_DELAY
+    RGB_SHOW_SPLITTER_DELAY,
+    RGB_SHOW_PIE_CHASER_DELAY
 };
 
 #endif

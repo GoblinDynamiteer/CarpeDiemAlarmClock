@@ -11,6 +11,8 @@ void rgb_lightshows_init()
 {
     rgb_show_func[RGB_SHOW_RAINBOW_SPINNER] = rgb_lightshow_rainbow_spinner;
     rgb_show_func[RGB_SHOW_SPLITTER] = rgb_lightshow_splitter;
+    rgb_show_func[RGB_SHOW_PIE_CHASER] = rgb_lightshow_pie_chaser;
+
     current_rgb_show_mode = RGB_SHOW_RAINBOW_SPINNER;
 }
 
@@ -49,6 +51,30 @@ void rgb_lightshow_splitter(void)
     rgb_need_update();
 }
 
+/* Four "pie pieces" rotating counter-clockwise */
+void rgb_lightshow_pie_chaser(void)
+{
+    static uint8_t led_index = 0;
+    static uint8_t offset = 0;
+    static const uint8_t pie = (RING_NUM_LEDS / 4);
+
+    led_index <= 0 ? led_index = RING_NUM_LEDS-1 : led_index--;
+
+    strip_set_color_from_lenght(led_index, pie, 25, 0, 0);
+
+    offset = STRING_PIXEL_OFFSET(led_index, pie);
+    strip_set_color_from_lenght(offset, pie, 0, 25, 0);
+
+    offset = STRING_PIXEL_OFFSET(led_index, pie * 2);
+    strip_set_color_from_lenght(offset, pie, 0, 0, 25);
+
+    offset = STRING_PIXEL_OFFSET(led_index, pie * 3);
+    strip_set_color_from_lenght(offset, pie, 2, 2, 0);
+
+    rgb_need_update();
+}
+
+/* Colors rotating and blending clockwise */
 void rgb_lightshow_rainbow_spinner(void)
 {
     static int16_t blue = RGB_SHOW_MAX_PWM;
