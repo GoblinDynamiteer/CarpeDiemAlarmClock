@@ -6,14 +6,14 @@
 
 #include <NeoMaple.h>
 
-#define NUM_LEDS 44
+#define NUM_LEDS 32
 #define DELAY 50
 
 enum{RED, GREEN, BLUE};
 
 /* Default data-pin is PA0 */
 NeoMaple ledring = NeoMaple(NUM_LEDS, NEO_GRB + NEO_KHZ800);
-int pwm = 15;
+int pwm = 20;
 
 void setup()
 {
@@ -29,13 +29,22 @@ int increase_pwm(int current_pwm)
 
 void loop()
 {
+   /*for (int i = 0; i < NUM_LEDS; i++)
+   {
+      //clearRing(false);
+      ledring.setPixelColor(i, 0, 0, 0);
+      //ledring.setPixelColor(opposite_pixel(i), 0, 0, pwm);
+   }
+   ledring.show();*/
+
+
     for (int i = 0; i < NUM_LEDS; i++)
     {
         //clearRing(false);
-        ledring.setPixelColor(i, pwm, pwm, pwm);
+        ledring.setPixelColor(i, 0, pwm, 0);
         //ledring.setPixelColor(opposite_pixel(i), 0, 0, pwm);
         ledring.show();
-        //delay(DELAY);
+        delay(DELAY);
     }
 
     //pwm = increase_pwm(pwm);
