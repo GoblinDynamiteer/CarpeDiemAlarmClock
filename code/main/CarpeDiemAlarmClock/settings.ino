@@ -14,6 +14,25 @@ void on_board_led_init()
     pinMode(SETTING_ON_BOARD_LED_PIN, OUTPUT);
 }
 
+void serial_begin()
+{
+    #ifdef SERIAL_0
+        Serial.begin(SETTINGS_BAUD_RATE);
+    #endif
+
+    #ifdef SERIAL_1
+        Serial1.begin(SETTINGS_BAUD_RATE);
+    #endif
+
+    #ifdef SERIAL_2
+        Serial2.begin(SETTINGS_BAUD_RATE);
+    #endif
+
+    #ifdef SERIAL_3
+        Serial3.begin(SETTINGS_BAUD_RATE);
+    #endif
+}
+
 /* Toggles onboard LED */
 void toggle_on_board_led()
 {
