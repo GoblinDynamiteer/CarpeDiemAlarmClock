@@ -45,7 +45,8 @@ void rgb_lightshow_splitter(void)
     green = random(RGB_SHOW_MAX_PWM);
     blue = random(RGB_SHOW_MAX_PWM);
 
-    n == 6 ? n = 0 : n++;
+    n == 6 ? n = 1 : n++;
+    rgb_need_update();
 }
 
 void rgb_lightshow_rainbow_spinner(void)
@@ -57,7 +58,7 @@ void rgb_lightshow_rainbow_spinner(void)
     static uint8_t dec = DEC_BLUE;
     static uint8_t led_index = 0;
 
-    ring_set_one_pixel(led_index++, red, green, blue, false, false);
+    ring_set_one_pixel(led_index++, red, green, blue, false);
 
     (inc == INC_BLUE) ? blue++ : 0;
     (inc == INC_RED) ? red++ : 0;

@@ -168,6 +168,7 @@ static void rgb_display_handler(void *pvParameters)
             (TickType_t)300) == pdTRUE)
         {
             rgb_show_func[current_rgb_show_mode]();
+            strip_set_status_bits();
             xSemaphoreGive(semaphore_rgb);
             vTaskDelay(rgb_show_delay[current_rgb_show_mode]);
         }

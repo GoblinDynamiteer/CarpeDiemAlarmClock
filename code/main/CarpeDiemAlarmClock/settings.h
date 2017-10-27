@@ -40,4 +40,9 @@ const String device_name = "CarpeDiem Alarm Clock";
 #define SETTINGS_BAUD_RATE 9600
 #define SETTING_SERIAL_DATA_COMMAND_SIZE 12
 
+enum { OFF, ON };
+uint8_t status_alarm;
+uint8_t status_buzzer;
+uint8_t status_rgb;
+
 #endif

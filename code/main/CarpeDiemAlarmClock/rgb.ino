@@ -8,6 +8,7 @@
 
 /* Port of NeoPixel library */
 #include <NeoMaple.h>
+#include "settings.h"
 
 NeoMaple ring = NeoMaple(RGB_TOTAL_NUM_LED, NEO_GRB + NEO_KHZ800);
 bool show_pixels;
@@ -67,10 +68,21 @@ void strip_set_color(int red, int green, int blue)
     ring.show();
 }
 
+/* Set LED-ring to specific color */
+void strip_set_status_bits()
+{
+    ring.setPixelColor(STRIP_LED_STATUS_INDEX1, 0,
+        status_alarm ? 20 : 0, 0);
+    ring.setPixelColor(STRIP_LED_STATUS_INDEX2, 0,
+        status_buzzer ? 20 : 0, 0);
+
+    rgb_need_update();
+}
+
 /* Set one pixel to specific color */
 void ring_set_one_pixel(
     int pixel, int red, int green, int blue,
-    bool clear_first, bool update = true)
+    bool clear_first)
 {
     if(pixel > RING_NUM_LEDS)
     {
@@ -84,11 +96,6 @@ void ring_set_one_pixel(
     }
 
     ring.setPixelColor(pixel, red, green, blue);
-
-    if(update)
-    {
-        ring.show();
-    }
 }
 
 /* Sets every nth (third, fourth etc) pixel */
@@ -102,9 +109,12 @@ void ring_set_nth_pixel(int n, int red, int green, int blue)
         {
             ring.setPixelColor(i, red, green, blue);
         }
-    }
 
-    ring.show();
+        else
+        {
+            ring.setPixelColor(i, 0, 0, 0);
+        }
+    }
 }
 
 /* Blink color on / off, one cycle */
@@ -143,7 +153,7 @@ void strip_show_second(
     uint8_t second,uint8_t red, uint8_t green, uint8_t blue)
 {
     uint8_t shift_amount = 0;
-    for(uint8_t i = STRIP_LED_INDEX_START; i < STRIP_LED_INDEX_END; i++)
+    for(uint8_t i = STRIP_LED_INDEX_START; i < STRIP_LED_INDEX_END - 2; i++)
     {
         if((second >> shift_amount++) & 1)
         {

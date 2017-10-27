@@ -10,6 +10,9 @@
 
 void setup()
 {
+    status_alarm = ON;
+    status_buzzer = ON;
+    status_rgb = ON;
 
     serial_begin();
     rtc_init();
