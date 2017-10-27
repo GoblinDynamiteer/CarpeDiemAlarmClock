@@ -5,10 +5,32 @@
     Functions running cool neopixel demos / lightshows
  */
 
-enum { INC_RED, INC_GREEN, INC_BLUE };
-enum { DEC_RED, DEC_GREEN, DEC_BLUE };
+#include "rgb.h"
 
-#define SHOW_MAX_PWM 30
+void rgb_lightshows_init()
+{
+    rgb_show_func[RGB_SHOW_RAINBOW_SPINNER] = rgb_lightshow_rainbow_spinner;
+    rgb_show_func[RGB_SHOW_SPLITTER] = rgb_lightshow_splitter;
+    current_rgb_show_mode = RGB_SHOW_RAINBOW_SPINNER;
+}
+
+/* Cycle function pointer and delay array indexes */
+void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
+{
+    if(next_previous) // next
+    {
+        current_rgb_show_mode =
+            current_rgb_show_mode + 1 >= RGB_SHOW_MAX_MODES ?
+            0 : current_rgb_show_mode + 1;
+    }
+
+    else
+    {
+        current_rgb_show_mode =
+            current_rgb_show_mode == 0 ?
+            (RGB_SHOW_MAX_MODES - 1) : (current_rgb_show_mode - 1);
+    }
+}
 
 void rgb_lightshow_splitter(void)
 {
@@ -19,18 +41,16 @@ void rgb_lightshow_splitter(void)
 
     ring_set_nth_pixel(n, red, green, blue);
 
-    red = random(SHOW_MAX_PWM);
-    green = random(SHOW_MAX_PWM);
-    blue = random(SHOW_MAX_PWM);
+    red = random(RGB_SHOW_MAX_PWM);
+    green = random(RGB_SHOW_MAX_PWM);
+    blue = random(RGB_SHOW_MAX_PWM);
 
     n == 6 ? n = 0 : n++;
-
-    delay(30);
 }
 
 void rgb_lightshow_rainbow_spinner(void)
 {
-    static int16_t blue = SHOW_MAX_PWM;
+    static int16_t blue = RGB_SHOW_MAX_PWM;
     static int16_t red = 0;
     static int16_t green = 0;
     static uint8_t inc = INC_RED;
@@ -47,19 +67,19 @@ void rgb_lightshow_rainbow_spinner(void)
     (dec == DEC_BLUE) ? blue-- : 0;
     (dec == DEC_GREEN) ? green-- : 0;
 
-    if(red > SHOW_MAX_PWM)
+    if(red > RGB_SHOW_MAX_PWM)
     {
         dec = DEC_RED;
         inc = INC_GREEN;
     }
 
-    if(green > SHOW_MAX_PWM)
+    if(green > RGB_SHOW_MAX_PWM)
     {
         dec = DEC_GREEN;
         inc = INC_BLUE;
     }
 
-    if(blue > SHOW_MAX_PWM)
+    if(blue > RGB_SHOW_MAX_PWM)
     {
         dec = DEC_BLUE;
         inc = INC_RED;

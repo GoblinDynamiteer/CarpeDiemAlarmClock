@@ -16,6 +16,7 @@ void rgb_init()
 {
     ring.begin();
     on_board_led_init();
+    rgb_lightshows_init();
     rgb_all_led_test();
     show_pixels = false;
 }

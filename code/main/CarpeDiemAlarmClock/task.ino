@@ -90,10 +90,22 @@ static void serial_command(void *pvParameters)
                         }
                         break;
 
+                    case 'D': // Cycle rgb show demos D1 : next D2: previous
+                        if(xSemaphoreTake(semaphore_rgb,
+                            (TickType_t)100) == pdTRUE)
+                        {
+                            bool dir = serial_data[1] == '1' ?
+                                RGB_SHOW_NEXT : RGB_SHOW_PREV;
+                            rgb_lightshows_select(dir);
+                            xSemaphoreGive(semaphore_rgb);
+                        }
+                        break;
+
                     case 'T': // Print time as HH:MM:SS
                         if(xSemaphoreTake(semaphore_rtc,
                             (TickType_t)200) == pdTRUE)
                         {
+                            serial_print_ln("Current RTC time: ");
                             rtc_serial_print();
                             xSemaphoreGive(semaphore_rtc);
                         }
@@ -155,9 +167,9 @@ static void rgb_display_handler(void *pvParameters)
         if(xSemaphoreTake(semaphore_rgb,
             (TickType_t)300) == pdTRUE)
         {
-            rgb_lightshow_rainbow_spinner();
+            rgb_show_func[current_rgb_show_mode]();
             xSemaphoreGive(semaphore_rgb);
-            vTaskDelay(RBG_SHOW_RAINBOW_SPINNER_DELAY);
+            vTaskDelay(rgb_show_delay[current_rgb_show_mode]);
         }
     }
 }
