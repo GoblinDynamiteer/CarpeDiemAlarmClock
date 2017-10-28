@@ -40,6 +40,8 @@ enum {
 
 #define STRING_PIXEL_OFFSET(PIX, LEN) ((PIX + LEN) > RING_NUM_LEDS) ? \
     (PIX + LEN - RING_NUM_LEDS) : (PIX + LEN)
+#define RGB_RING_NEXT_PIXEL(PIX) (PIX == RING_NUM_LEDS - 1) ? 0 : PIX + 1
+#define RGB_RING_PREV_PIXEL(PIX) (PIX == 0) ? RING_NUM_LEDS - 1 : PIX - 1
 
 /* Function pointer used with tasks */
 void(*rgb_show_func[3])(void);

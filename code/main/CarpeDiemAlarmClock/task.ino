@@ -324,7 +324,7 @@ static void joystick_input(void *pvParameters)
                 serial_print_ln("joystick: toggled status_alarm");
         }
 
-        /* Joystick left -- toggle buzzer */
+        /* Joystick right -- toggle buzzer */
         if (analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
         {
             status_toggle_buzzer();
@@ -375,21 +375,136 @@ static void joystick_input(void *pvParameters)
 
             while(!digitalRead(JOYSTICK_PIN_SW))
             {
+                bool blink_on = true;
+
                 if(press_timer++ > 2000)
                 {
-                    // Do something to indicate duration is enough!
+                    if(xSemaphoreTake(semaphore_rgb,
+                        (TickType_t)1500) == pdTRUE)
+                    {
+                        rgb_strip_set_color(blink_on ? 20 : 0, 0, 0);
+                        xSemaphoreGive(semaphore_rgb);
+                        blink_on = !blink_on;
+                        vTaskDelay(200);
+                    }
+
                     set_alarm = false;
                 }
 
                 vTaskDelay(1);
             }
 
-            // Start user clock input
             if(serial_debug_output)
                 serial_print_ln(set_alarm ?
                     "joystick: set alarm" : "joystick: set clock");
+
+            /* Control pixel location on ring to set hour / minute */
+            if(xSemaphoreTake(semaphore_rgb,
+                (TickType_t)1500) == pdTRUE)
+            {
+                if(serial_debug_output)
+                    serial_print_ln("joystick: took rgb sema");
+
+                rgb_all_led_off();
+                rgb_strip_set_color(0, 20, 0);
+
+                uint8_t hour_pixel = get_pixel_with_joystick(0, 20, 0); //CONVERT
+
+                rgb_all_led_off();
+                rgb_strip_set_color(0, 0, 20);
+
+                uint8_t minute_pixel = get_pixel_with_joystick(0, 0, 20); //CONVERT
+
+                uint8_t hour = (uint8_t)(hour_pixel / 2);
+                uint8_t minute = (uint8_t)(minute_pixel * 2.5);
+
+                rgb_force_clock_update = true;
+
+                xSemaphoreGive(semaphore_rgb);
+                while(!joystick_button_released());
+
+                if(xSemaphoreTake(semaphore_rtc,
+                    (TickType_t)1500) == pdTRUE)
+                {
+                    if(set_alarm)
+                    {
+                        if(serial_debug_output)
+                            serial_print_ln("joystick: alarm set " +
+                                String(hour) + ":" + String(minute));
+                        // BUILD
+                    }
+
+                    else
+                    {
+                        rtc_set_hour_minute(hour, minute);
+                        serial_print_ln("joystick: clock set " +
+                            String(hour) + ":" + String(minute));
+                    }
+
+                    xSemaphoreGive(semaphore_rtc);
+                }
+            }
+
         }
 
         vTaskDelay(100);
     }
+}
+
+/* Make sure the button is released */
+bool joystick_button_released()
+{
+    uint16_t counter = 0;
+    serial_print_ln("joystick counter!");
+    while(digitalRead(JOYSTICK_PIN_SW) == 0)
+    {
+        vTaskDelay(1);
+    }
+
+    serial_print_ln("joystick counting!");
+    for(uint16_t i = 0; i < 100; i++)
+    {
+        if(digitalRead(JOYSTICK_PIN_SW) == 1)
+        {
+            counter++;
+        }
+    }
+    serial_print_ln("joystick counter: " + String(counter));
+    return (counter == 100);
+}
+
+/* Select hour or minute on rgb-rings with joystick! */
+uint8_t get_pixel_with_joystick(uint8_t red, uint8_t green, uint8_t blue)
+{
+    uint8_t pixel_index = 0;
+    rgb_ring_set_one_pixel(pixel_index, red, green, blue, true);
+    while(!joystick_button_released());
+
+    while(1)
+    {
+        if (analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
+        {
+            pixel_index = RGB_RING_NEXT_PIXEL(pixel_index);
+            rgb_ring_set_one_pixel(pixel_index, red, green, blue, true);
+            vTaskDelay(300);
+        }
+
+        if (analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
+        {
+            pixel_index = RGB_RING_PREV_PIXEL(pixel_index);
+            rgb_ring_set_one_pixel(pixel_index, red, green, blue, true);
+            vTaskDelay(300);
+        }
+
+        if (!digitalRead(JOYSTICK_PIN_SW))
+        {
+            while(!joystick_button_released());
+            if(serial_debug_output)
+                serial_print_ln("joystick set: returning pixel " +
+                    String(pixel_index));
+            return pixel_index;
+        }
+    }
+
+    vTaskDelay(40);
 }

@@ -181,9 +181,20 @@ void ring_fade_mode(int step_delay, int fade_color, uint8_t pwm_limit)
     }
 }
 
+/* Set static color on strip */
+void rgb_strip_set_color(uint8_t red, uint8_t green, uint8_t blue)
+{
+    for(uint8_t i = STRIP_LED_INDEX_START; i < STRIP_LED_INDEX_END; i++)
+    {
+        rgb.setPixelColor(i, red, green, blue);
+    }
+
+    rgb.show();
+}
+
 /* Shows seconds on LED-strip */
 void rgb_strip_show_second(
-    uint8_t second,uint8_t red, uint8_t green, uint8_t blue)
+    uint8_t second, uint8_t red, uint8_t green, uint8_t blue)
 {
     uint8_t shift_amount = 0;
     for(uint8_t i = STRIP_LED_INDEX_START; i < STRIP_LED_INDEX_END - 2; i++)
