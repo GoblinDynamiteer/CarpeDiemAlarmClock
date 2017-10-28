@@ -11,18 +11,22 @@ int main()
     const int pie = (RING_NUM_LEDS / 4);
     int offset;
 
-    for (int i = 0; i < 24; i++)
+    int led_index = 0;
+    int counter = 0;
+
+    while(counter++ < 100)
     {
-        printf("i: %d\n", i);
-        strip_set_color_from_lenght(i, pie);
+        led_index >= RING_NUM_LEDS ? led_index = 0 : led_index++;
+        printf("i: %d\n", led_index);
+        strip_set_color_from_lenght(led_index, pie);
 
-        offset = STRING_PIXEL_OFFSET(i, pie);
+        offset = STRING_PIXEL_OFFSET(led_index, pie);
         strip_set_color_from_lenght(offset, pie);
 
-        offset = STRING_PIXEL_OFFSET(i, pie * 2);
+        offset = STRING_PIXEL_OFFSET(led_index, pie * 2);
         strip_set_color_from_lenght(offset, pie);
 
-        offset = STRING_PIXEL_OFFSET(i, pie * 3);
+        offset = STRING_PIXEL_OFFSET(led_index, pie * 3);
         strip_set_color_from_lenght(offset, pie);
     }
 }
@@ -30,6 +34,7 @@ int main()
 
 void strip_set_color_from_lenght(int start_index, int lenght)
 {
+    printf("-NEWPIE-\n");
     for (int i = 0; i < lenght; i++)
     {
         if(start_index > RING_NUM_LEDS)
