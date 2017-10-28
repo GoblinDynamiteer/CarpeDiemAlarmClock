@@ -5,6 +5,7 @@
 //#define SERIAL_1
 #define SERIAL_2
 //#define SERIAL_3
+#define SERIAL_DEBUG_OUTPUT_ENABLE
 
 #ifdef SERIAL_0
     #define serial_print(x) Serial.print(x)
@@ -40,9 +41,11 @@ const String device_name = "CarpeDiem Alarm Clock";
 #define SETTINGS_BAUD_RATE 9600
 #define SETTING_SERIAL_DATA_COMMAND_SIZE 12
 
+#define BUZZER_PIN PB1
+
 #define JOYSTICK_PIN_Y PA6
 #define JOYSTICK_PIN_X PA7
-#define JOYSTICK_PIN_SW PA5
+#define JOYSTICK_PIN_SW PB11
 
 #define JOYSTICK_MEDIAN_VALUE 2900
 #define JOYSTICK_THRESHOLD 500
@@ -55,5 +58,7 @@ bool status_alarm;
 bool status_buzzer;
 bool status_rgb;
 bool show_time_on_ring;
+
+bool serial_debug_output;
 
 #endif

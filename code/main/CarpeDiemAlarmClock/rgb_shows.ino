@@ -24,6 +24,10 @@ void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
     {
         show_time_on_ring = false;
         current_rgb_show_mode = RGB_SHOW_RAINBOW_SPINNER;
+
+        if(serial_debug_output)
+            serial_print_ln("lightshow: show index 0");
+
         return;
     }
 
@@ -34,11 +38,17 @@ void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
             show_time_on_ring = true;
             rgb_force_clock_update = true;
             current_rgb_show_mode = 0;
+
+            if(serial_debug_output)
+                serial_print_ln("lightshow: clock display");
         }
 
         else
         {
             current_rgb_show_mode++;
+
+            if(serial_debug_output)
+                serial_print_ln("lightshow: next show");
         }
     }
 
@@ -49,11 +59,17 @@ void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
             show_time_on_ring = true;
             rgb_force_clock_update = true;
             current_rgb_show_mode = RGB_SHOW_MAX_MODES - 1;
+
+            if(serial_debug_output)
+                serial_print_ln("lightshow: clock display");
         }
 
         else
         {
             current_rgb_show_mode--;
+
+            if(serial_debug_output)
+                serial_print_ln("lightshow: prev show");
         }
     }
 }

@@ -19,6 +19,7 @@ void setup()
     rtc_init();
     rgb_init();
     joystick_init();
+    buzzer_init();
     setup_tasks();
 }
 

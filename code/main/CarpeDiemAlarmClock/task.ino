@@ -31,6 +31,14 @@ void setup_tasks()
         NULL);
 
     xTaskCreate(
+        alarm_handler,
+        "alarm_handler",
+        configMINIMAL_STACK_SIZE,
+        NULL,
+        tskIDLE_PRIORITY + 2,
+        NULL);
+
+    xTaskCreate(
         rgb_display_handler,
         "rgb_display_handler",
         configMINIMAL_STACK_SIZE,
@@ -49,7 +57,7 @@ void setup_tasks()
     xTaskCreate(
         serial_command,
         "serial_command",
-        configMINIMAL_STACK_SIZE + 128,
+        configMINIMAL_STACK_SIZE,
         NULL,
         tskIDLE_PRIORITY + 2,
         NULL);
@@ -108,8 +116,15 @@ static void serial_command(void *pvParameters)
                                 RGB_SHOW_NEXT : RGB_SHOW_PREV;
                             rgb_lightshows_select(dir);
                             xSemaphoreGive(semaphore_rgb);
+                            serial_print_ln("Cycling Demo!");
                         }
                         break;
+
+                    case 'R': // Reset status flags
+                            reset_status_flags();
+                            serial_print_ln("Reset status flags!");
+                        break;
+
 
                     case 'T': // Print time as HH:MM:SS
                         if(xSemaphoreTake(semaphore_rtc,
@@ -126,7 +141,7 @@ static void serial_command(void *pvParameters)
                         }
                         break;
 
-                    case 'Q': // Test
+                    case 'Q': // Query -- Show status
                         serial_print_ln("Connected to " + device_name + "!");
                         if(xSemaphoreTake(semaphore_rtc,
                             (TickType_t)200) == pdTRUE)
@@ -135,8 +150,16 @@ static void serial_command(void *pvParameters)
                             rtc_serial_print();
                             xSemaphoreGive(semaphore_rtc);
                         }
-                        serial_print_ln("Alarm set for: [TODO]");
-                        serial_print_ln("Current mode:  [TODO]");
+                        serial_print_ln(status_rgb ?
+                            "RGB ON" : "RGB OFF");
+                        serial_print_ln(show_time_on_ring ?
+                            "CLOCK ON" : "CLOCK OFF");
+                        serial_print_ln(status_buzzer ?
+                            "BUZZER ON" : "BUZZER OFF");
+                        serial_print_ln(status_alarm ?
+                            "ALARM ON" : "ALARM OFF");
+                        serial_print_ln(serial_debug_output ?
+                            "SERIAL DEBUG ON" : "SERIAL DEBUG OFF");
                         serial_print_ln("------------------------");
                         break;
 
@@ -191,6 +214,18 @@ static void time_handler(void *pvParameters)
     }
 }
 
+/* BEEP BEEP BEEP ! */
+static void alarm_handler(void *pvParameters)
+{
+    while(1)
+    {
+        buzzer_on(60000);
+        vTaskDelay(400);
+        buzzer_off();
+        vTaskDelay(3000);
+    }
+}
+
 /* Displays current time on LED-rings and LED-strip */
 static void rgb_display_handler(void *pvParameters)
 {
@@ -203,10 +238,16 @@ static void rgb_display_handler(void *pvParameters)
             {
                 rgb_all_led_off();
 
+                if(serial_debug_output)
+                    serial_print_ln("rgb_handler: all led off");
+
                 while(!status_rgb)
                 {
                     vTaskDelay(100);
                 }
+
+                if(serial_debug_output)
+                    serial_print_ln("rgb_handler: passed status_rgb");
 
                 /* Force clock display update if clock is enabled */
                 rgb_force_clock_update = show_time_on_ring;
@@ -225,6 +266,11 @@ static void rgb_display_handler(void *pvParameters)
                 xSemaphoreGive(semaphore_rgb);
                 vTaskDelay(rgb_show_delay[current_rgb_show_mode]);
             }
+        }
+
+        else
+        {
+            vTaskDelay(100);
         }
     }
 }
@@ -253,10 +299,6 @@ static void joystick_input(void *pvParameters)
 {
     while(1)
     {
-        int y = analogRead(JOYSTICK_PIN_Y);
-        int x = analogRead(JOYSTICK_PIN_X);
-        bool sw = !digitalRead(JOYSTICK_PIN_SW);
-
         /* Joystick left -- toggle alarm */
         if (analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
         {
@@ -265,6 +307,9 @@ static void joystick_input(void *pvParameters)
             {
                 vTaskDelay(1);
             }
+
+            if(serial_debug_output)
+                serial_print_ln("joystick: toggled status_alarm");
         }
 
         /* Joystick left -- toggle buzzer */
@@ -275,6 +320,9 @@ static void joystick_input(void *pvParameters)
             {
                 vTaskDelay(1);
             }
+
+            if(serial_debug_output)
+                serial_print_ln("joystick: toggled status_buzzer");
         }
 
         /* Joystick up -- toggle rgb */
@@ -285,6 +333,9 @@ static void joystick_input(void *pvParameters)
             {
                 vTaskDelay(1);
             }
+
+            if(serial_debug_output)
+                serial_print_ln("joystick: toggled status_rgb");
         }
 
         /* Joystick down -- cycle rgb show modes and clock display */
@@ -295,32 +346,36 @@ static void joystick_input(void *pvParameters)
             {
                 vTaskDelay(1);
             }
+
+            if(serial_debug_output)
+                serial_print_ln("joystick: cycled show");
         }
 
         /* Joystick button pressed --
-            set alarm (click) / time (2 second press)*/
-        if (sw)
+            set alarm (click) / time (2 second press) */
+        if (!digitalRead(JOYSTICK_PIN_SW))
         {
             unsigned long press_timer = 0;
+            bool set_alarm = true;
 
-            while (sw)
+            if(serial_debug_output)
+                serial_print_ln("joystick: button press");
+
+            while(!digitalRead(JOYSTICK_PIN_SW))
             {
-                sw = !digitalRead(JOYSTICK_PIN_SW);
-                press_timer++;
+                if(press_timer++ > 2000)
+                {
+                    // Do something to indicate duration is enough!
+                    set_alarm = false;
+                }
+
                 vTaskDelay(1);
             }
 
-            if (press_timer > 2000)
-            {
-                //Set time here
-                serial_print_ln("Set time");
-            }
-
-            else
-            {
-                //Set alarm here
-                serial_print_ln("Set alarm");
-            }
+            // Start user clock input
+            if(serial_debug_output)
+                serial_print_ln(set_alarm ?
+                    "joystick: set alarm" : "joystick: set clock");
         }
 
         vTaskDelay(100);

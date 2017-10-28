@@ -37,24 +37,42 @@ void serial_begin()
     #ifdef SERIAL_3
         Serial3.begin(SETTINGS_BAUD_RATE);
     #endif
+
+    #ifdef SERIAL_DEBUG_OUTPUT_ENABLE
+        serial_debug_output = true;
+    #else
+        serial_debug_output = false;
+    #endif
 }
 
 void status_toggle_alarm()
 {
     status_alarm = !status_alarm;
     status_change = true;
+
+    if(serial_debug_output)
+        serial_print_ln(status_alarm ?
+            "alarm_status: on" : "alarm_status: off");
 }
 
 void status_toggle_rgb()
 {
     status_rgb = !status_rgb;
     status_change = true;
+
+    if(serial_debug_output)
+        serial_print_ln(status_rgb ?
+            "rgb_status: on" : "rgb_status: off");
 }
 
 void status_toggle_buzzer()
 {
     status_buzzer = !status_buzzer;
     status_change = true;
+
+    if(serial_debug_output)
+        serial_print_ln(status_buzzer ?
+            "buzzer_status: on" : "buzzer_status: off");
 }
 
 bool status_changed()
@@ -76,8 +94,20 @@ void toggle_on_board_led()
     on = !on;
 }
 
+void reset_status_flags()
+{
+    status_alarm = true;
+    status_buzzer = true;
+    status_rgb = true;
+    show_time_on_ring = true;
+    current_rgb_show_mode = 0;
+}
+
 void toggle_on_board_led_n_times(uint8_t n)
 {
+    if(serial_debug_output)
+        serial_print_ln("onboard led: toggling " + String(n) + " times");
+
     for (size_t i = 0; i < n; i++)
     {
         toggle_on_board_led();
