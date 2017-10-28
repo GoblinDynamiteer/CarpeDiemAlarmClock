@@ -20,7 +20,8 @@ void rgb_init()
     rgb_lightshows_init();
     rgb_all_led_test();
     show_pixels = false;
-    force_time_display_update = false;
+    rgb_force_clock_update = false;
+    rgb_current_clock_mode = RGB_CLOCK_MODE_REGULAR;
 }
 
 void rgb_all_led_test()
@@ -80,7 +81,7 @@ void strip_set_color(int red, int green, int blue)
 }
 
 /* Set colors from selected index, lenght amount */
-void strip_set_color_from_lenght(uint8_t start_index, uint8_t lenght,
+void rgb_ring_set_color_from_lenght(uint8_t start_index, uint8_t lenght,
     uint8_t red, uint8_t green, uint8_t blue)
 {
     for (uint8_t i = 0; i < lenght; i++)
@@ -101,7 +102,7 @@ void strip_set_color_from_lenght(uint8_t start_index, uint8_t lenght,
 }
 
 /* Set LED-ring to specific color */
-void strip_set_status_bits()
+void rgb_strip_set_status_bits()
 {
     rgb.setPixelColor(STRIP_LED_STATUS_INDEX1, 0,
         status_alarm ? 20 : 0, 0);
@@ -112,7 +113,7 @@ void strip_set_status_bits()
 }
 
 /* Set one pixel to specific color */
-void ring_set_one_pixel(
+void rgb_ring_set_one_pixel(
     uint8_t pixel, uint8_t red, uint8_t green, uint8_t blue,
     bool clear_first = true)
 {
@@ -131,7 +132,7 @@ void ring_set_one_pixel(
 }
 
 /* Sets every nth (third, fourth etc) pixel */
-void ring_set_nth_pixel(uint8_t n, uint8_t red, uint8_t green, uint8_t blue)
+void rgb_ring_set_nth_pixel(uint8_t n, uint8_t red, uint8_t green, uint8_t blue)
 {
     ring_set_color(0, 0, 0);
 
@@ -181,7 +182,7 @@ void ring_fade_mode(int step_delay, int fade_color, uint8_t pwm_limit)
 }
 
 /* Shows seconds on LED-strip */
-void strip_show_second(
+void rgb_strip_show_second(
     uint8_t second,uint8_t red, uint8_t green, uint8_t blue)
 {
     uint8_t shift_amount = 0;
@@ -201,18 +202,16 @@ void strip_show_second(
     rgb_need_update();
 }
 
-void ring_show_minute(
-    uint8_t minute, uint8_t red, uint8_t green, uint8_t blue)
+uint8_t rgb_ring_calc_pixel_minute(
+    uint8_t minute)
 {
     uint8_t index = (uint8_t)(minute / 2.5);
     index = index > RING_NUM_LEDS ? 23 : index;
-    ring_set_one_pixel(index, red, green, blue, true);
-
-    rgb_need_update();
+    return index;
 }
 
-void ring_show_hour(
-    uint8_t hour, uint8_t minute, uint8_t red, uint8_t green, uint8_t blue)
+uint8_t rgb_ring_calc_pixel_hour(
+    uint8_t hour, uint8_t minute)
 {
     hour = hour >= 12 ? hour - 12 : hour; // Convert 22 23 .. -> 10 11 ..
 
@@ -220,7 +219,24 @@ void ring_show_hour(
         else hour * 2 + 1 */
     uint8_t index = minute >= 30 ?  hour * 2 + 1 : hour * 2;
     index = index > RING_NUM_LEDS ? 23 : index;
-    ring_set_one_pixel(index, red, green, blue, false);
+    return index;
+}
+
+/* Show clock on led-ring */
+void rgb_ring_show_clock(uint8_t hour, uint8_t minute, uint8_t mode)
+{
+    switch(mode)
+    {
+        case RGB_CLOCK_MODE_REGULAR:
+            rgb_ring_set_one_pixel(
+                rgb_ring_calc_pixel_minute(minute), 0, 20, 0, true);
+            rgb_ring_set_one_pixel(
+                rgb_ring_calc_pixel_hour(hour, minute), 0, 0, 20, false);
+            break;
+
+        default:
+            break;
+    }
 
     rgb_need_update();
 }

@@ -91,6 +91,8 @@ static void serial_command(void *pvParameters)
                                 serial_data.substring(3, 5).toInt()
                             );
                             xSemaphoreGive(semaphore_rtc);
+
+                            rgb_force_clock_update = show_time_on_ring;
                         }
                         else
                         {
@@ -113,7 +115,7 @@ static void serial_command(void *pvParameters)
                         if(xSemaphoreTake(semaphore_rtc,
                             (TickType_t)200) == pdTRUE)
                         {
-                            serial_print_ln("Current RTC time: ");
+                            serial_print("Current RTC time: ");
                             rtc_serial_print();
                             xSemaphoreGive(semaphore_rtc);
                         }
@@ -126,6 +128,16 @@ static void serial_command(void *pvParameters)
 
                     case 'Q': // Test
                         serial_print_ln("Connected to " + device_name + "!");
+                        if(xSemaphoreTake(semaphore_rtc,
+                            (TickType_t)200) == pdTRUE)
+                        {
+                            serial_print("Current RTC time: ");
+                            rtc_serial_print();
+                            xSemaphoreGive(semaphore_rtc);
+                        }
+                        serial_print_ln("Alarm set for: [TODO]");
+                        serial_print_ln("Current mode:  [TODO]");
+                        serial_print_ln("------------------------");
                         break;
 
                     default:
@@ -155,14 +167,17 @@ static void time_handler(void *pvParameters)
                 if(xSemaphoreTake(semaphore_rgb,
                     (TickType_t)200) == pdTRUE)
                 {
-                    strip_show_second(rtc_second(), 0, 0, 10);
+                    rgb_strip_show_second(rtc_second(), 0, 0, 10);
 
                     if(show_time_on_ring &&
-                        (rtc_minute_changed() || force_time_display_update))
+                        (rtc_minute_changed() || rgb_force_clock_update))
                     {
-                        ring_show_minute(rtc_minute(), 0, 0, 10);
-                        ring_show_hour(rtc_hour(), rtc_minute(), 0, 10, 0);
-                        force_time_display_update = false;
+                        rgb_ring_show_clock(
+                            rtc_hour(),
+                            rtc_minute(),
+                            rgb_current_clock_mode);
+
+                        rgb_force_clock_update = false;
                     }
 
                     xSemaphoreGive(semaphore_rgb);
@@ -194,10 +209,10 @@ static void rgb_display_handler(void *pvParameters)
                 }
 
                 /* Force clock display update if clock is enabled */
-                force_time_display_update = show_time_on_ring;
+                rgb_force_clock_update = show_time_on_ring;
             }
 
-            strip_set_status_bits();
+            rgb_strip_set_status_bits();
 
             if(show_time_on_ring)
             {
@@ -240,7 +255,7 @@ static void joystick_input(void *pvParameters)
     {
         int y = analogRead(JOYSTICK_PIN_Y);
         int x = analogRead(JOYSTICK_PIN_X);
-        int sw = !digitalRead(JOYSTICK_PIN_SW);
+        bool sw = !digitalRead(JOYSTICK_PIN_SW);
 
         /* Joystick left -- toggle alarm */
         if (analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
@@ -279,6 +294,32 @@ static void joystick_input(void *pvParameters)
             while(analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN)
             {
                 vTaskDelay(1);
+            }
+        }
+
+        /* Joystick button pressed --
+            set alarm (click) / time (2 second press)*/
+        if (sw)
+        {
+            unsigned long press_timer = 0;
+
+            while (sw)
+            {
+                sw = !digitalRead(JOYSTICK_PIN_SW);
+                press_timer++;
+                vTaskDelay(1);
+            }
+
+            if (press_timer > 2000)
+            {
+                //Set time here
+                serial_print_ln("Set time");
+            }
+
+            else
+            {
+                //Set alarm here
+                serial_print_ln("Set alarm");
             }
         }
 

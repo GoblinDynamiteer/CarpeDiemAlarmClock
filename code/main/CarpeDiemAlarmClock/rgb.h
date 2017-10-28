@@ -14,7 +14,7 @@
 enum { COLOR_RED, COLOR_GREEN, COLOR_BLUE };
 
 
-/* For rgb shows/demos */
+/* For rgb shows/demos/clock */
 enum { INC_RED, INC_GREEN, INC_BLUE };
 enum { DEC_RED, DEC_GREEN, DEC_BLUE };
 enum {
@@ -22,6 +22,12 @@ enum {
     RGB_SHOW_SPLITTER,
     RGB_SHOW_PIE_CHASER,
     RGB_SHOW_MAX_MODES
+};
+
+enum {
+    RGB_CLOCK_MODE_REGULAR,
+    RGB_CLOCK_MODE_BINARY,
+    RGB_CLOCK_MODE_SLICES
 };
 
 #define RGB_SHOW_MAX_PWM 30
@@ -45,6 +51,7 @@ uint16_t rgb_show_delay[3] =
     RGB_SHOW_PIE_CHASER_DELAY
 };
 
-bool force_time_display_update;
+bool rgb_force_clock_update;
+uint8_t rgb_current_clock_mode;
 
 #endif

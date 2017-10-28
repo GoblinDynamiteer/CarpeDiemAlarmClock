@@ -32,7 +32,7 @@ void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
         if(current_rgb_show_mode == RGB_SHOW_MAX_MODES - 1)
         {
             show_time_on_ring = true;
-            force_time_display_update = true;
+            rgb_force_clock_update = true;
             current_rgb_show_mode = 0;
         }
 
@@ -47,7 +47,7 @@ void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
         if(current_rgb_show_mode == 0)
         {
             show_time_on_ring = true;
-            force_time_display_update = true;
+            rgb_force_clock_update = true;
             current_rgb_show_mode = RGB_SHOW_MAX_MODES - 1;
         }
 
@@ -65,7 +65,7 @@ void rgb_lightshow_splitter(void)
     static uint8_t blue = 2;
     static uint8_t green = 3;
 
-    ring_set_nth_pixel(n, red, green, blue);
+    rgb_ring_set_nth_pixel(n, red, green, blue);
 
     red = random(RGB_SHOW_MAX_PWM);
     green = random(RGB_SHOW_MAX_PWM);
@@ -84,16 +84,16 @@ void rgb_lightshow_pie_chaser(void)
 
     led_index <= 0 ? led_index = RING_NUM_LEDS-1 : led_index--;
 
-    strip_set_color_from_lenght(led_index, pie, 25, 0, 0);
+    rgb_ring_set_color_from_lenght(led_index, pie, 25, 0, 0);
 
     offset = STRING_PIXEL_OFFSET(led_index, pie);
-    strip_set_color_from_lenght(offset, pie, 0, 25, 0);
+    rgb_ring_set_color_from_lenght(offset, pie, 0, 25, 0);
 
     offset = STRING_PIXEL_OFFSET(led_index, pie * 2);
-    strip_set_color_from_lenght(offset, pie, 0, 0, 25);
+    rgb_ring_set_color_from_lenght(offset, pie, 0, 0, 25);
 
     offset = STRING_PIXEL_OFFSET(led_index, pie * 3);
-    strip_set_color_from_lenght(offset, pie, 2, 2, 0);
+    rgb_ring_set_color_from_lenght(offset, pie, 2, 2, 0);
 
     rgb_need_update();
 }
@@ -108,7 +108,7 @@ void rgb_lightshow_rainbow_spinner(void)
     static uint8_t dec = DEC_BLUE;
     static uint8_t led_index = 0;
 
-    ring_set_one_pixel(led_index++, red, green, blue, false);
+    rgb_ring_set_one_pixel(led_index++, red, green, blue, false);
 
     (inc == INC_BLUE) ? blue++ : 0;
     (inc == INC_RED) ? red++ : 0;
