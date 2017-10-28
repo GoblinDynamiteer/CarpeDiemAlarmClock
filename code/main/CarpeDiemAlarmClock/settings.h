@@ -54,5 +54,6 @@ const String device_name = "CarpeDiem Alarm Clock";
 bool status_alarm;
 bool status_buzzer;
 bool status_rgb;
+bool show_time_on_ring;
 
 #endif

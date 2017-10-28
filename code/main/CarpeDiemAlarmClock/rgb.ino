@@ -20,6 +20,7 @@ void rgb_init()
     rgb_lightshows_init();
     rgb_all_led_test();
     show_pixels = false;
+    force_time_display_update = false;
 }
 
 void rgb_all_led_test()
@@ -113,7 +114,7 @@ void strip_set_status_bits()
 /* Set one pixel to specific color */
 void ring_set_one_pixel(
     uint8_t pixel, uint8_t red, uint8_t green, uint8_t blue,
-    bool clear_first)
+    bool clear_first = true)
 {
     if(pixel > RING_NUM_LEDS)
     {
@@ -196,6 +197,30 @@ void strip_show_second(
             rgb.setPixelColor(i, 0, 0, 0);
         }
     }
+
+    rgb_need_update();
+}
+
+void ring_show_minute(
+    uint8_t minute, uint8_t red, uint8_t green, uint8_t blue)
+{
+    uint8_t index = (uint8_t)(minute / 2.5);
+    index = index > RING_NUM_LEDS ? 23 : index;
+    ring_set_one_pixel(index, red, green, blue, true);
+
+    rgb_need_update();
+}
+
+void ring_show_hour(
+    uint8_t hour, uint8_t minute, uint8_t red, uint8_t green, uint8_t blue)
+{
+    hour = hour >= 12 ? hour - 12 : hour; // Convert 22 23 .. -> 10 11 ..
+
+    /* Index is hour * 2 if minutes passed is < 30,
+        else hour * 2 + 1 */
+    uint8_t index = minute >= 30 ?  hour * 2 + 1 : hour * 2;
+    index = index > RING_NUM_LEDS ? 23 : index;
+    ring_set_one_pixel(index, red, green, blue, false);
 
     rgb_need_update();
 }

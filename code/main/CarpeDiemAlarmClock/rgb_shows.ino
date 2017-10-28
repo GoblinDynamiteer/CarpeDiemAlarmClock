@@ -6,6 +6,7 @@
  */
 
 #include "rgb.h"
+#include "settings.h"
 
 void rgb_lightshows_init()
 {
@@ -19,18 +20,41 @@ void rgb_lightshows_init()
 /* Cycle function pointer and delay array indexes */
 void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
 {
+    if(show_time_on_ring)
+    {
+        show_time_on_ring = false;
+        current_rgb_show_mode = RGB_SHOW_RAINBOW_SPINNER;
+        return;
+    }
+
     if(next_previous) // next
     {
-        current_rgb_show_mode =
-            current_rgb_show_mode + 1 >= RGB_SHOW_MAX_MODES ?
-            0 : current_rgb_show_mode + 1;
+        if(current_rgb_show_mode == RGB_SHOW_MAX_MODES - 1)
+        {
+            show_time_on_ring = true;
+            force_time_display_update = true;
+            current_rgb_show_mode = 0;
+        }
+
+        else
+        {
+            current_rgb_show_mode++;
+        }
     }
 
     else
     {
-        current_rgb_show_mode =
-            current_rgb_show_mode == 0 ?
-            (RGB_SHOW_MAX_MODES - 1) : (current_rgb_show_mode - 1);
+        if(current_rgb_show_mode == 0)
+        {
+            show_time_on_ring = true;
+            force_time_display_update = true;
+            current_rgb_show_mode = RGB_SHOW_MAX_MODES - 1;
+        }
+
+        else
+        {
+            current_rgb_show_mode--;
+        }
     }
 }
 

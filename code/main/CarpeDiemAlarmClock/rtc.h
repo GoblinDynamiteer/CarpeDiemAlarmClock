@@ -10,7 +10,8 @@ typedef struct
     uint8_t month;
     uint8_t day;
     uint8_t weekday;
-    uint8_t last_sec;
+    uint8_t last_checked_second;
+    uint8_t last_checked_minute;
 } rtc_time_struct;
 
 #define RTC_DEFAULT_YEAR 17

@@ -17,7 +17,8 @@ rtc_time_struct rtc_time;
 
 void rtc_init()
 {
-    rtc_time.last_sec = 61;
+    rtc_time.last_checked_second = 61;
+    rtc_time.last_checked_minute = 61;
     rtc_set(
         30,
         20,
@@ -62,6 +63,16 @@ uint8_t rtc_second()
     return rtc_time.second;
 }
 
+uint8_t rtc_minute()
+{
+    return rtc_time.minute;
+}
+
+uint8_t rtc_hour()
+{
+    return rtc_time.hour;
+}
+
 
 /* Read RTC data to struct */
 void rtc_update()
@@ -95,12 +106,25 @@ void rtc_serial_print(void)
 }
 
 /* Check if a second has ticked since last check */
-bool rtc_has_ticked()
+bool rtc_second_changed()
 {
     rtc_update();
-    if(rtc_time.second != rtc_time.last_sec)
+    if(rtc_time.second != rtc_time.last_checked_second)
     {
-        rtc_time.last_sec = rtc_time.second;
+        rtc_time.last_checked_second = rtc_time.second;
+        return true;
+    }
+
+    return false;
+}
+
+/* Check if a minute has passed since last check */
+bool rtc_minute_changed()
+{
+    rtc_update();
+    if(rtc_time.minute != rtc_time.last_checked_minute)
+    {
+        rtc_time.last_checked_minute = rtc_time.minute;
         return true;
     }
 

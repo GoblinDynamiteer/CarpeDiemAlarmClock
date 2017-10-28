@@ -150,12 +150,21 @@ static void time_handler(void *pvParameters)
         {
             rtc_update();
 
-            if(rtc_has_ticked())
+            if(rtc_second_changed())
             {
                 if(xSemaphoreTake(semaphore_rgb,
                     (TickType_t)200) == pdTRUE)
                 {
                     strip_show_second(rtc_second(), 0, 0, 10);
+
+                    if(show_time_on_ring &&
+                        (rtc_minute_changed() || force_time_display_update))
+                    {
+                        ring_show_minute(rtc_minute(), 0, 0, 10);
+                        ring_show_hour(rtc_hour(), rtc_minute(), 0, 10, 0);
+                        force_time_display_update = false;
+                    }
+
                     xSemaphoreGive(semaphore_rgb);
                 }
             }
@@ -175,7 +184,7 @@ static void rgb_display_handler(void *pvParameters)
         if(xSemaphoreTake(semaphore_rgb,
             (TickType_t)300) == pdTRUE)
         {
-            if(!status_rgb)
+            if(!status_rgb) // Disable all LEDs
             {
                 rgb_all_led_off();
 
@@ -183,12 +192,24 @@ static void rgb_display_handler(void *pvParameters)
                 {
                     vTaskDelay(100);
                 }
+
+                /* Force clock display update if clock is enabled */
+                force_time_display_update = show_time_on_ring;
             }
 
-            rgb_show_func[current_rgb_show_mode]();
             strip_set_status_bits();
-            xSemaphoreGive(semaphore_rgb);
-            vTaskDelay(rgb_show_delay[current_rgb_show_mode]);
+
+            if(show_time_on_ring)
+            {
+                xSemaphoreGive(semaphore_rgb);
+            }
+
+            else
+            {
+                rgb_show_func[current_rgb_show_mode]();
+                xSemaphoreGive(semaphore_rgb);
+                vTaskDelay(rgb_show_delay[current_rgb_show_mode]);
+            }
         }
     }
 }
@@ -199,10 +220,15 @@ static void rgb_updater(void *pvParameters)
     while(1)
     {
         if(xSemaphoreTake(semaphore_rgb,
-            (TickType_t)100) == pdTRUE)
+            (TickType_t)100) == pdTRUE && status_rgb)
         {
             rgb_update();
             xSemaphoreGive(semaphore_rgb);
+        }
+
+        else
+        {
+            vTaskDelay(100);
         }
     }
 }
@@ -246,7 +272,7 @@ static void joystick_input(void *pvParameters)
             }
         }
 
-        /* Joystick down -- cycle rgb show modes */
+        /* Joystick down -- cycle rgb show modes and clock display */
         if (analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN)
         {
             rgb_lightshows_select(RGB_SHOW_NEXT);

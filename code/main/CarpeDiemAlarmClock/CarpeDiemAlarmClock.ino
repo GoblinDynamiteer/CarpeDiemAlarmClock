@@ -13,6 +13,7 @@ void setup()
     status_alarm = true;
     status_buzzer = true;
     status_rgb = true;
+    show_time_on_ring = true;
 
     serial_begin();
     rtc_init();

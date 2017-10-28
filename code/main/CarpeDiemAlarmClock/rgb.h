@@ -45,4 +45,6 @@ uint16_t rgb_show_delay[3] =
     RGB_SHOW_PIE_CHASER_DELAY
 };
 
+bool force_time_display_update;
+
 #endif
