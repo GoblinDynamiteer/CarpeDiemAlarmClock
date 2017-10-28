@@ -270,7 +270,9 @@ static void rgb_display_handler(void *pvParameters)
 
         else
         {
-            vTaskDelay(100);
+            if(serial_debug_output)
+                serial_print_ln("rgb_display_handler: no sema!");
+            vTaskDelay(500);
         }
     }
 }
@@ -280,17 +282,27 @@ static void rgb_updater(void *pvParameters)
 {
     while(1)
     {
-        if(xSemaphoreTake(semaphore_rgb,
-            (TickType_t)100) == pdTRUE && status_rgb)
+        if(status_rgb)
         {
-            rgb_update();
-            xSemaphoreGive(semaphore_rgb);
+            if(xSemaphoreTake(semaphore_rgb,
+                (TickType_t)1000) == pdTRUE)
+            {
+                rgb_update();
+                xSemaphoreGive(semaphore_rgb);
+            }
+
+            else
+            {
+                if(serial_debug_output)
+                    serial_print_ln("rgb_updater: no sema!");
+            }
         }
 
         else
         {
-            vTaskDelay(100);
+            vTaskDelay(500);  //ZZZZ
         }
+
     }
 }
 
