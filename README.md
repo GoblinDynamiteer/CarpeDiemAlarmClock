@@ -29,4 +29,9 @@ CarpeDiemAlarmClock is an alarm clock that is waking you up "gently" by graduall
 
 ### Images  
 Serial commands   
-![Serial commands](https://raw.githubusercontent.com/GoblinDynamiteer/CarpeDiemAlarmClock/master/doc/img/screenshots/serial_commands.png) 
+![Serial commands](https://raw.githubusercontent.com/GoblinDynamiteer/CarpeDiemAlarmClock/master/doc/img/screenshots/serial_commands.png)
+
+### Videos
+YouTube
+
+[Joystick & Mode Switch Test](https://youtu.be/ULnAHqrvtyQ)  
