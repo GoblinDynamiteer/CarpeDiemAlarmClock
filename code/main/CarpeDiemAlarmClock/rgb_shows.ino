@@ -24,7 +24,7 @@ void rgb_lightshows_init()
 }
 
 /* Cycle function pointer and delay array indexes */
-void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
+extern void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
 {
     if(next_previous) // next
     {
