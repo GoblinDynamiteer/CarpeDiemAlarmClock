@@ -14,15 +14,19 @@
 
 uRTCLib rtc;
 rtc_time_struct rtc_time;
+rtc_alarm_struct rtc_alarm;
 
 void rtc_init()
 {
+    rtc_alarm_countdown_running = false;
     rtc_time.last_checked_second = 61;
     rtc_time.last_checked_minute = 61;
+    rtc_alarm.hour = 10;
+    rtc_alarm.minute = 0;
     rtc_set(
-        30,
-        20,
-        12,
+        50,
+        29,
+        8,
         RTC_DEFAULT_WEEKDAY,
         RTC_DEFAULT_DAY,
         RTC_DEFAULT_MONTH,
@@ -43,6 +47,26 @@ void rtc_set(uint8_t s, uint8_t m, uint8_t h, uint8_t dow,
         dom,    // Day of month
         month,  // Month
         year);   // Year
+}
+
+/* Sets time and date in RTC */
+void rtc_set_alarm(uint8_t hour, uint8_t minute)
+{
+    rtc_alarm.hour = hour;
+    rtc_alarm.minute = minute;
+}
+
+/* Calculate minutes to alarm  */
+int32_t rtc_time_to_alarm()
+{
+    rtc_update();
+
+    uint16_t total_minutes_clock = rtc_time.hour * 60 + rtc_time.minute;
+    uint16_t total_minutes_alarm = rtc_alarm.hour * 60 + rtc_alarm.minute;
+
+    int32_t diff = total_minutes_alarm - total_minutes_clock;
+
+    return (diff < 0 ? 24 * 60 + diff : diff);
 }
 
 /* Sets time and date in RTC */

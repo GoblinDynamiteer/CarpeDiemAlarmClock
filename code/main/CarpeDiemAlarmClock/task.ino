@@ -14,7 +14,7 @@
 String serial_data;
 bool serial_data_complete;
 
-SemaphoreHandle_t semaphore_rtc = NULL; // RTC Device access
+extern SemaphoreHandle_t semaphore_rtc = NULL; // RTC Device access
 SemaphoreHandle_t semaphore_rgb = NULL; // NeoPixel access
 
 void setup_tasks()
@@ -99,8 +99,25 @@ static void serial_command(void *pvParameters)
                                 serial_data.substring(3, 5).toInt()
                             );
                             xSemaphoreGive(semaphore_rtc);
+                        }
+                        else
+                        {
+                            serial_print_ln("Error: Could not set time!");
+                        }
+                        break;
 
-                            rgb_force_clock_update = show_time_on_ring;
+                    case 'A': // Set alarm as HH:MM -> A1245
+                        if(xSemaphoreTake(semaphore_rtc,
+                            (TickType_t)200) == pdTRUE)
+                        {
+                            serial_print_ln("Setting alarm time to " +
+                                serial_data.substring(1, 3) + ":" +
+                                serial_data.substring(3, 5));
+                            rtc_set_alarm(
+                                serial_data.substring(1, 3).toInt(),
+                                serial_data.substring(3, 5).toInt()
+                            );
+                            xSemaphoreGive(semaphore_rtc);
                         }
                         else
                         {
@@ -148,6 +165,8 @@ static void serial_command(void *pvParameters)
                         {
                             serial_print("Current RTC time: ");
                             rtc_serial_print();
+                            serial_print_ln("Time to alarm: " +
+                                String(rtc_time_to_alarm()));
                             xSemaphoreGive(semaphore_rtc);
                         }
                         serial_print_ln(status_rgb ?
@@ -175,7 +194,7 @@ static void serial_command(void *pvParameters)
     }
 }
 
-/* Displays current time on LED-rings and LED-strip */
+/* Displays current second as binary on LED-strip */
 static void time_handler(void *pvParameters)
 {
     while(1)
@@ -187,22 +206,9 @@ static void time_handler(void *pvParameters)
 
             if(rtc_second_changed())
             {
-                if(xSemaphoreTake(semaphore_rgb,
-                    (TickType_t)200) == pdTRUE)
+                if(xSemaphoreTake(semaphore_rgb, (TickType_t)200) == pdTRUE)
                 {
                     rgb_strip_show_second(rtc_second(), 0, 0, 10);
-
-                    if(show_time_on_ring &&
-                        (rtc_minute_changed() || rgb_force_clock_update))
-                    {
-                        rgb_ring_show_clock(
-                            rtc_hour(),
-                            rtc_minute(),
-                            rgb_current_clock_mode);
-
-                        rgb_force_clock_update = false;
-                    }
-
                     xSemaphoreGive(semaphore_rgb);
                 }
             }
@@ -219,10 +225,29 @@ static void alarm_handler(void *pvParameters)
 {
     while(1)
     {
-        buzzer_on(60000);
-        vTaskDelay(400);
-        buzzer_off();
-        vTaskDelay(3000);
+        if(status_alarm)
+        {
+            if(xSemaphoreTake(semaphore_rtc, (TickType_t)2000) == pdTRUE)
+            {
+                uint16_t time_until_alarm = (uint16_t)rtc_time_to_alarm();
+                xSemaphoreGive(semaphore_rtc);
+
+                if(time_until_alarm <= RTC_ALARM_START_MINUTES)
+                {
+                    current_rgb_show_mode =
+                        RGB_SHOW_WAKE_UP_BEFORE_ALARM;
+
+                    rtc_alarm_countdown_running = true;
+                }
+            }
+        }
+
+        else
+        {
+            rtc_alarm_countdown_running = false;
+        }
+
+        vTaskDelay(1000);
     }
 }
 
@@ -248,24 +273,13 @@ static void rgb_display_handler(void *pvParameters)
 
                 if(serial_debug_output)
                     serial_print_ln("rgb_handler: passed status_rgb");
-
-                /* Force clock display update if clock is enabled */
-                rgb_force_clock_update = show_time_on_ring;
             }
 
             rgb_strip_set_status_bits();
+            rgb_show_func[current_rgb_show_mode]();
 
-            if(show_time_on_ring)
-            {
-                xSemaphoreGive(semaphore_rgb);
-            }
-
-            else
-            {
-                rgb_show_func[current_rgb_show_mode]();
-                xSemaphoreGive(semaphore_rgb);
-                vTaskDelay(rgb_show_delay[current_rgb_show_mode]);
-            }
+            xSemaphoreGive(semaphore_rgb);
+            vTaskDelay(rgb_show_delay[current_rgb_show_mode]);
         }
 
         else
@@ -300,7 +314,7 @@ static void rgb_updater(void *pvParameters)
 
         else
         {
-            vTaskDelay(500);  //ZZZZ
+            vTaskDelay(100);  //ZZZZ
         }
 
     }
@@ -418,8 +432,6 @@ static void joystick_input(void *pvParameters)
                 uint8_t hour = (uint8_t)(hour_pixel / 2);
                 uint8_t minute = (uint8_t)(minute_pixel * 2.5);
 
-                rgb_force_clock_update = true;
-
                 xSemaphoreGive(semaphore_rgb);
                 while(!joystick_button_released());
 
@@ -428,10 +440,10 @@ static void joystick_input(void *pvParameters)
                 {
                     if(set_alarm)
                     {
+                        rtc_set_alarm(hour, minute);
                         if(serial_debug_output)
                             serial_print_ln("joystick: alarm set " +
                                 String(hour) + ":" + String(minute));
-                        // BUILD
                     }
 
                     else

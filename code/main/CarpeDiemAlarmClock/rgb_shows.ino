@@ -1,6 +1,6 @@
 /*  CarpeDiem Alarm clock
 
-    rgb_shows.c
+    rgb_shows.ino
 
     Functions running cool neopixel demos / lightshows
  */
@@ -8,69 +8,59 @@
 #include "rgb.h"
 #include "settings.h"
 
+extern SemaphoreHandle_t semaphore_rtc;
+
+bool has_cycled = false;
+
 void rgb_lightshows_init()
 {
+    rgb_show_func[RGB_SHOW_CLOCK] = rgb_lightshow_clock;
     rgb_show_func[RGB_SHOW_RAINBOW_SPINNER] = rgb_lightshow_rainbow_spinner;
     rgb_show_func[RGB_SHOW_SPLITTER] = rgb_lightshow_splitter;
     rgb_show_func[RGB_SHOW_PIE_CHASER] = rgb_lightshow_pie_chaser;
+    rgb_show_func[RGB_SHOW_WAKE_UP_BEFORE_ALARM] = rgb_lightshow_before_alarm;
 
-    current_rgb_show_mode = RGB_SHOW_RAINBOW_SPINNER;
+    current_rgb_show_mode = RGB_SHOW_CLOCK;
 }
 
 /* Cycle function pointer and delay array indexes */
 void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
 {
-    if(show_time_on_ring)
-    {
-        show_time_on_ring = false;
-        current_rgb_show_mode = RGB_SHOW_RAINBOW_SPINNER;
-
-        if(serial_debug_output)
-            serial_print_ln("lightshow: show index 0");
-
-        return;
-    }
-
     if(next_previous) // next
     {
-        if(current_rgb_show_mode == RGB_SHOW_MAX_MODES - 1)
-        {
-            show_time_on_ring = true;
-            rgb_force_clock_update = true;
-            current_rgb_show_mode = 0;
+        current_rgb_show_mode =
+            (current_rgb_show_mode == RGB_SHOW_MAX_MODES - 1) ?
+            0 : current_rgb_show_mode + 1;
 
-            if(serial_debug_output)
-                serial_print_ln("lightshow: clock display");
-        }
-
-        else
-        {
-            current_rgb_show_mode++;
-
-            if(serial_debug_output)
-                serial_print_ln("lightshow: next show");
-        }
+        has_cycled = true;
     }
 
     else
     {
-        if(current_rgb_show_mode == 0)
-        {
-            show_time_on_ring = true;
-            rgb_force_clock_update = true;
-            current_rgb_show_mode = RGB_SHOW_MAX_MODES - 1;
+        current_rgb_show_mode =
+            (current_rgb_show_mode == 0) ?
+             RGB_SHOW_MAX_MODES - 1: current_rgb_show_mode - 1;
 
-            if(serial_debug_output)
-                serial_print_ln("lightshow: clock display");
+        has_cycled = true;
+    }
+}
+
+/* Show clock on ring */
+void rgb_lightshow_clock(void)
+{
+    if(xSemaphoreTake(semaphore_rtc, (TickType_t)100) == pdTRUE)
+    {
+        if(rtc_minute_changed() || has_cycled || status_changed(STATUS_RGB))
+        {
+            rgb_ring_show_clock(
+                rtc_hour(),
+                rtc_minute(),
+                rgb_current_clock_mode);
+
+            has_cycled = false;
         }
 
-        else
-        {
-            current_rgb_show_mode--;
-
-            if(serial_debug_output)
-                serial_print_ln("lightshow: prev show");
-        }
+        xSemaphoreGive(semaphore_rtc);
     }
 }
 
@@ -158,4 +148,52 @@ void rgb_lightshow_rainbow_spinner(void)
     led_index = led_index >= RING_NUM_LEDS ? 0 : led_index;
 
     rgb_need_update();
+}
+
+/* Wake up before alarm */
+void rgb_lightshow_before_alarm(void)
+{
+    static uint8_t intensity = 0;
+    static uint8_t n = 6;
+    static uint8_t prev_intensity = 0;
+    static uint16_t time_until_alarm = 0;
+    static bool ticked = true;
+
+    if(!rtc_alarm_countdown_running)
+    {
+        rgb_lightshows_select(RGB_SHOW_NEXT);
+        return;
+    }
+
+    if(xSemaphoreTake(semaphore_rtc, (TickType_t)100) == pdTRUE)
+    {
+        time_until_alarm = (uint16_t)rtc_time_to_alarm();
+        xSemaphoreGive(semaphore_rtc);
+
+        if(time_until_alarm > RTC_ALARM_START_MINUTES)
+        {
+            return;
+        }
+
+        intensity = RTC_ALARM_START_MINUTES + 1 - time_until_alarm;
+
+        if(intensity > 5)   n = 6;
+        if(intensity > 10)  n = 4;
+        if(intensity > 15)  n = 3;
+        if(intensity > 20)  n = 2;
+        if(intensity > 25)  n = 1;
+
+        if(prev_intensity != intensity || status_changed(STATUS_ALARM))
+        {
+            if(serial_debug_output)
+                serial_print_ln("show alarm: intensity: " + String(intensity));
+
+            rgb_ring_set_nth_pixel(n,
+                intensity, intensity, intensity);
+
+            prev_intensity = intensity;
+            rgb_need_update();
+        }
+    }
+
 }

@@ -8,7 +8,14 @@
         PB07 SDA
  */
 #include "settings.h"
-bool status_change = false;
+
+bool status_change[3] =
+{
+    false,      // STATUS_ALARM
+    false,      // STATUS_BUZZER
+    false       // STATUS_RGB
+};
+
 
 void on_board_led_init()
 {
@@ -48,7 +55,7 @@ void serial_begin()
 void status_toggle_alarm()
 {
     status_alarm = !status_alarm;
-    status_change = true;
+    status_change[STATUS_ALARM] = true;
 
     if(serial_debug_output)
         serial_print_ln(status_alarm ?
@@ -58,7 +65,7 @@ void status_toggle_alarm()
 void status_toggle_rgb()
 {
     status_rgb = !status_rgb;
-    status_change = true;
+    status_change[STATUS_RGB] = true;
 
     if(serial_debug_output)
         serial_print_ln(status_rgb ?
@@ -68,18 +75,21 @@ void status_toggle_rgb()
 void status_toggle_buzzer()
 {
     status_buzzer = !status_buzzer;
-    status_change = true;
+    status_change[STATUS_BUZZER] = true;
 
     if(serial_debug_output)
         serial_print_ln(status_buzzer ?
             "buzzer_status: on" : "buzzer_status: off");
 }
 
-bool status_changed()
+bool status_changed(uint8_t type)
 {
-    if(status_change)
+    if(status_change[type])
     {
-        status_change = false;
+        if(serial_debug_output)
+            serial_print_ln("status_changed request!");
+
+        status_change[type] = false;
         return true;
     }
 

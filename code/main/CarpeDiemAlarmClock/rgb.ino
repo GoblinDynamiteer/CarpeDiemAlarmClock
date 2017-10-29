@@ -20,7 +20,6 @@ void rgb_init()
     rgb_lightshows_init();
     rgb_all_led_test();
     show_pixels = false;
-    rgb_force_clock_update = false;
     rgb_current_clock_mode = RGB_CLOCK_MODE_REGULAR;
 }
 
@@ -240,9 +239,9 @@ void rgb_ring_show_clock(uint8_t hour, uint8_t minute, uint8_t mode)
     {
         case RGB_CLOCK_MODE_REGULAR:
             rgb_ring_set_one_pixel(
-                rgb_ring_calc_pixel_minute(minute), 0, 20, 0, true);
+                rgb_ring_calc_pixel_minute(minute), 0, 0, 20, true);
             rgb_ring_set_one_pixel(
-                rgb_ring_calc_pixel_hour(hour, minute), 0, 0, 20, false);
+                rgb_ring_calc_pixel_hour(hour, minute), 0, 20, 0, false);
             break;
 
         default:

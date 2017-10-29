@@ -59,6 +59,12 @@ bool status_buzzer;
 bool status_rgb;
 bool show_time_on_ring;
 
+enum {
+    STATUS_ALARM,
+    STATUS_BUZZER,
+    STATUS_RGB
+};
+
 bool serial_debug_output;
 
 #endif

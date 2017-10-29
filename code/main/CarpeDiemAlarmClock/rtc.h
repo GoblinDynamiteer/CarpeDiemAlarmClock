@@ -14,12 +14,19 @@ typedef struct
     uint8_t last_checked_minute;
 } rtc_time_struct;
 
+typedef struct
+{
+    uint8_t hour;
+    uint8_t minute;
+} rtc_alarm_struct;
+
 #define RTC_DEFAULT_YEAR 17
 #define RTC_DEFAULT_MONTH 10
 #define RTC_DEFAULT_DAY 26
 #define RTC_DEFAULT_SECOND 0
 #define RTC_DEFAULT_WEEKDAY 1
 
-extern rtc_time_struct rtc_time;
+#define RTC_ALARM_START_MINUTES 30
+bool rtc_alarm_countdown_running;
 
 #endif
