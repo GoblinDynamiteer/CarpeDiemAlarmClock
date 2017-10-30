@@ -41,7 +41,7 @@ const String device_name = "CarpeDiem Alarm Clock";
 #define SETTINGS_BAUD_RATE 9600
 #define SETTING_SERIAL_DATA_COMMAND_SIZE 12
 
-#define BUZZER_PIN PB1
+#define BUZZER_PIN PB12
 
 #define JOYSTICK_PIN_Y PA6
 #define JOYSTICK_PIN_X PA7
@@ -59,7 +59,8 @@ bool status_buzzer;
 bool status_rgb;
 bool show_time_on_ring;
 
-enum {
+enum
+{
     STATUS_ALARM,
     STATUS_BUZZER,
     STATUS_RGB

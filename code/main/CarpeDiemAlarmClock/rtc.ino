@@ -21,17 +21,19 @@ void rtc_init()
     rtc_alarm_countdown_running = false;
     rtc_time.last_checked_second = 61;
     rtc_time.last_checked_minute = 61;
-    rtc_alarm.hour = 10;
-    rtc_alarm.minute = 0;
+    rtc_alarm.hour = 8;
+    rtc_alarm.minute = 31;
+
     rtc_set(
-        50,
-        29,
+        58,
+        30,
         8,
         RTC_DEFAULT_WEEKDAY,
         RTC_DEFAULT_DAY,
         RTC_DEFAULT_MONTH,
         RTC_DEFAULT_YEAR
     );
+
     rtc_update();
 }
 
@@ -40,12 +42,12 @@ void rtc_set(uint8_t s, uint8_t m, uint8_t h, uint8_t dow,
              uint8_t dom, uint8_t month, uint8_t year)
 {
     rtc.set(
-        s,      // Seconds
-        m,      // Minute
-        h,      // Hour
-        dow,    // Day of week
-        dom,    // Day of month
-        month,  // Month
+        s,       // Seconds
+        m,       // Minute
+        h,       // Hour
+        dow,     // Day of week
+        dom,     // Day of month
+        month,   // Month
         year);   // Year
 }
 
@@ -97,7 +99,6 @@ uint8_t rtc_hour()
     return rtc_time.hour;
 }
 
-
 /* Read RTC data to struct */
 void rtc_update()
 {
@@ -119,14 +120,6 @@ void rtc_serial_print(void)
     serial_print(String(rtc_time.hour) + ":"  +
                 String(rtc_time.minute) + ":" +
                 String(rtc_time.second) + "\n");
-
-    /*
-    serial_print(String(rtc_time.hour) + ":"  +
-                String(rtc_time.minute) + ":" +
-                String(rtc_time.second) + "\n" +
-                "20" + String(rtc_time.year) + "-" +
-                String(rtc_time.month) + "-" +
-                String(rtc_time.day) + "\n"); */
 }
 
 /* Check if a second has ticked since last check */

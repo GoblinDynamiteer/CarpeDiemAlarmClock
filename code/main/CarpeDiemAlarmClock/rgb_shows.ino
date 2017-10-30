@@ -30,7 +30,7 @@ extern void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
     {
         current_rgb_show_mode =
             (current_rgb_show_mode == RGB_SHOW_MAX_MODES - 1) ?
-            0 : current_rgb_show_mode + 1;
+                0 : current_rgb_show_mode + 1;
 
         has_cycled = true;
     }

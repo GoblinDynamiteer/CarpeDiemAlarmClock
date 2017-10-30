@@ -7,6 +7,7 @@
         PB06 SCL
         PB07 SDA
  */
+
 #include "settings.h"
 
 bool status_change[3] =
@@ -76,6 +77,11 @@ void status_toggle_buzzer()
 {
     status_buzzer = !status_buzzer;
     status_change[STATUS_BUZZER] = true;
+
+    if(!status_buzzer)
+    {
+        buzzer_off();
+    }
 
     if(serial_debug_output)
         serial_print_ln(status_buzzer ?

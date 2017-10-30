@@ -12,14 +12,12 @@ void buzzer_init()
    pinMode(BUZZER_PIN, OUTPUT);
 }
 
-void buzzer_on(uint16_t frequency)
+void buzzer_on()
 {
-   //analogWrite(BUZZER_PIN, frequency);
-   pwmWrite(BUZZER_PIN, frequency);
+   digitalWrite(BUZZER_PIN, 1);
 }
 
 void buzzer_off()
 {
-    //analogWrite(BUZZER_PIN, 0);
-    pwmWrite(BUZZER_PIN, 0);
+    digitalWrite(BUZZER_PIN, 0);
 }

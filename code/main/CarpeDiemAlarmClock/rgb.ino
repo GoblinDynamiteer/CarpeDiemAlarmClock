@@ -103,10 +103,14 @@ void rgb_ring_set_color_from_lenght(uint8_t start_index, uint8_t lenght,
 /* Set LED-ring to specific color */
 void rgb_strip_set_status_bits()
 {
-    rgb.setPixelColor(STRIP_LED_STATUS_INDEX1, 0,
-        status_alarm ? 20 : 0, 0);
-    rgb.setPixelColor(STRIP_LED_STATUS_INDEX2, 0,
-        status_buzzer ? 20 : 0, 0);
+    rgb.setPixelColor(STRIP_LED_STATUS_INDEX1,
+        status_alarm ? 0 : 20,  // Red
+        status_alarm ? 20 : 0,  // Green
+        0);                     // Blue
+    rgb.setPixelColor(STRIP_LED_STATUS_INDEX2,
+        status_buzzer ? 0 : 20, // Red
+        status_buzzer ? 20 : 0, // Green
+        0);                     // Blue
 
     rgb_need_update();
 }
@@ -131,7 +135,8 @@ void rgb_ring_set_one_pixel(
 }
 
 /* Sets every nth (third, fourth etc) pixel */
-void rgb_ring_set_nth_pixel(uint8_t n, uint8_t red, uint8_t green, uint8_t blue)
+void rgb_ring_set_nth_pixel(
+    uint8_t n, uint8_t red, uint8_t green, uint8_t blue)
 {
     ring_set_color(0, 0, 0);
 
@@ -171,6 +176,7 @@ void ring_fade_mode(int step_delay, int fade_color, uint8_t pwm_limit)
             fade_color == COLOR_RED ? pwm : 0,
             fade_color == COLOR_GREEN ? pwm : 0,
             fade_color == COLOR_BLUE ? pwm : 0);
+
         delay(step_delay);
 
         if(pwm > pwm_limit)
@@ -225,7 +231,7 @@ uint8_t rgb_ring_calc_pixel_hour(
 {
     hour = hour >= 12 ? hour - 12 : hour; // Convert 22 23 .. -> 10 11 ..
 
-    /* Index is hour * 2 if minutes passed is < 30,
+    /*  Index is hour * 2 if minutes passed is < 30,
         else hour * 2 + 1 */
     uint8_t index = minute >= 30 ?  hour * 2 + 1 : hour * 2;
     index = index > RING_NUM_LEDS ? 23 : index;

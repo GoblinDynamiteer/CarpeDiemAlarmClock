@@ -88,8 +88,7 @@ static void time_handler(void *pvParameters)
 {
     while(1)
     {
-        if(xSemaphoreTake(semaphore_rtc,
-            (TickType_t)200) == pdTRUE)
+        if(xSemaphoreTake(semaphore_rtc, (TickType_t)200) == pdTRUE)
         {
             rtc_update();
 
@@ -112,6 +111,8 @@ static void time_handler(void *pvParameters)
 /* BEEP BEEP BEEP ! */
 static void alarm_handler(void *pvParameters)
 {
+    bool on = true;
+
     while(1)
     {
         if(status_alarm)
@@ -120,6 +121,35 @@ static void alarm_handler(void *pvParameters)
             {
                 uint16_t time_until_alarm = (uint16_t)rtc_time_to_alarm();
                 xSemaphoreGive(semaphore_rtc);
+
+                if(time_until_alarm == 0)
+                {
+                    if(xSemaphoreTake(semaphore_rgb,
+                        (TickType_t)2000) == pdTRUE)
+                    {
+                        while(1)
+                        {
+                            rgb_strip_set_color(
+                                on ? 40 : 0,
+                                on ? 40 : 0,
+                                on ? 40 : 0
+                            );
+
+                            ring_set_color(
+                                !on ? 40 : 0,
+                                !on ? 40 : 0,
+                                !on ? 40 : 0
+                            );
+
+
+                            on ? buzzer_on() : buzzer_off();
+
+
+                            vTaskDelay(200);
+                            on = !on;
+                        }
+                    }
+                }
 
                 if(time_until_alarm <= RTC_ALARM_START_MINUTES)
                 {
@@ -311,12 +341,12 @@ static void joystick_input(void *pvParameters)
                 rgb_all_led_off();
                 rgb_strip_set_color(0, 20, 0);
 
-                uint8_t hour_pixel = get_pixel_with_joystick(0, 20, 0); //CONVERT
+                uint8_t hour_pixel = get_pixel_with_joystick(0, 20, 0);
 
                 rgb_all_led_off();
                 rgb_strip_set_color(0, 0, 20);
 
-                uint8_t minute_pixel = get_pixel_with_joystick(0, 0, 20); //CONVERT
+                uint8_t minute_pixel = get_pixel_with_joystick(0, 0, 20);
 
                 uint8_t hour = (uint8_t)(hour_pixel / 2);
                 uint8_t minute = (uint8_t)(minute_pixel * 2.5);
@@ -408,4 +438,12 @@ uint8_t get_pixel_with_joystick(uint8_t red, uint8_t green, uint8_t blue)
     }
 
     vTaskDelay(40);
+}
+
+bool joystick_moved()
+{
+    return ((analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT) ||
+            (analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT) ||
+            (analogRead(JOYSTICK_PIN_Y) < JOYSTICK_THRESHOLD_UP) ||
+            (analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN));
 }
