@@ -267,7 +267,7 @@ static void joystick_input(void *pvParameters)
             }
 
             if(serial_debug_output)
-                serial_print_ln("joystick: toggled status_alarm");
+                serial_print_ln("joystick: toggled status_buzzer");
         }
 
         /* Joystick right -- toggle buzzer */
@@ -281,7 +281,7 @@ static void joystick_input(void *pvParameters)
             }
 
             if(serial_debug_output)
-                serial_print_ln("joystick: toggled status_buzzer");
+                serial_print_ln("joystick: toggled status_alarm");;
         }
 
         /* Joystick up -- toggle rgb */
@@ -430,14 +430,14 @@ uint8_t get_pixel_with_joystick(uint8_t red, uint8_t green, uint8_t blue)
     {
         if (analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
         {
-            pixel_index = RGB_RING_NEXT_PIXEL(pixel_index);
+            pixel_index = RGB_RING_PREV_PIXEL(pixel_index);
             rgb_ring_set_one_pixel(pixel_index, red, green, blue, true);
             vTaskDelay(300);
         }
 
         if (analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
         {
-            pixel_index = RGB_RING_PREV_PIXEL(pixel_index);
+            pixel_index = RGB_RING_NEXT_PIXEL(pixel_index);
             rgb_ring_set_one_pixel(pixel_index, red, green, blue, true);
             vTaskDelay(300);
         }

@@ -199,6 +199,7 @@ void rgb_lightshow_before_alarm(void)
 
         intensity = RTC_ALARM_START_MINUTES + 1 - time_until_alarm;
 
+        n = 8;
         if(intensity > 5)   n = 6;
         if(intensity > 10)  n = 4;
         if(intensity > 15)  n = 3;
