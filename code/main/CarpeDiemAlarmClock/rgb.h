@@ -23,6 +23,7 @@ enum {
     RGB_SHOW_SPLITTER,
     RGB_SHOW_PIE_CHASER,
     RGB_SHOW_WAKE_UP_BEFORE_ALARM,
+    RGB_SHOW_ALARM,
     RGB_SHOW_MAX_MODES
 };
 
@@ -38,6 +39,7 @@ enum {
 #define RGB_SHOW_PIE_CHASER_DELAY 100
 #define RGB_SHOW_WAKE_UP_BEFORE_ALARM_DELAY 2000
 #define RGB_SHOW_CLOCK_DELAY 200
+#define RGB_SHOW_ALARM_DELAY 300
 
 #define RGB_SHOW_NEXT true
 #define RGB_SHOW_PREV false
@@ -48,15 +50,16 @@ enum {
 #define RGB_RING_PREV_PIXEL(PIX) (PIX == 0) ? RING_NUM_LEDS - 1 : PIX - 1
 
 /* Function pointer used with tasks */
-void(*rgb_show_func[5])(void);
+void(*rgb_show_func[6])(void);
 uint8_t current_rgb_show_mode; // Index for function pointer and delay array
-uint16_t rgb_show_delay[5] =
+uint16_t rgb_show_delay[6] =
 {
     RGB_SHOW_CLOCK_DELAY,
     RBG_SHOW_RAINBOW_SPINNER_DELAY,
     RGB_SHOW_SPLITTER_DELAY,
     RGB_SHOW_PIE_CHASER_DELAY,
-    RGB_SHOW_WAKE_UP_BEFORE_ALARM_DELAY
+    RGB_SHOW_WAKE_UP_BEFORE_ALARM_DELAY,
+    RGB_SHOW_ALARM_DELAY
 };
 
 uint8_t rgb_current_clock_mode;

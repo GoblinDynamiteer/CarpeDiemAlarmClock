@@ -19,6 +19,7 @@ void rgb_lightshows_init()
     rgb_show_func[RGB_SHOW_SPLITTER] = rgb_lightshow_splitter;
     rgb_show_func[RGB_SHOW_PIE_CHASER] = rgb_lightshow_pie_chaser;
     rgb_show_func[RGB_SHOW_WAKE_UP_BEFORE_ALARM] = rgb_lightshow_before_alarm;
+    rgb_show_func[RGB_SHOW_ALARM] = rgb_lightshow_alarm;
 
     current_rgb_show_mode = RGB_SHOW_CLOCK;
 }
@@ -29,7 +30,7 @@ extern void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
     if(next_previous) // next
     {
         current_rgb_show_mode =
-            (current_rgb_show_mode == RGB_SHOW_MAX_MODES - 1) ?
+            (current_rgb_show_mode == RGB_SHOW_MAX_MODES - 2) ?
                 0 : current_rgb_show_mode + 1;
 
         has_cycled = true;
@@ -39,7 +40,7 @@ extern void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
     {
         current_rgb_show_mode =
             (current_rgb_show_mode == 0) ?
-             RGB_SHOW_MAX_MODES - 1: current_rgb_show_mode - 1;
+             RGB_SHOW_MAX_MODES - 2 : current_rgb_show_mode - 1;
 
         has_cycled = true;
     }
@@ -150,6 +151,27 @@ void rgb_lightshow_rainbow_spinner(void)
     rgb_need_update();
 }
 
+/* Alarm */
+void rgb_lightshow_alarm(void)
+{
+    static bool on = false;
+
+    rgb_strip_set_color(
+        on ? 40 : 0,
+        on ? 40 : 0,
+        on ? 40 : 0
+    );
+
+    ring_set_color(
+        !on ? 40 : 0,
+        !on ? 40 : 0,
+        !on ? 40 : 0
+    );
+
+    on = !on;
+}
+
+
 /* Wake up before alarm */
 void rgb_lightshow_before_alarm(void)
 {
@@ -195,5 +217,4 @@ void rgb_lightshow_before_alarm(void)
             rgb_need_update();
         }
     }
-
 }

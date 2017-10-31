@@ -113,6 +113,7 @@ void toggle_on_board_led()
 void reset_status_flags()
 {
     status_alarm = true;
+    status_alarm_running = false;
     status_buzzer = true;
     status_rgb = true;
     show_time_on_ring = true;

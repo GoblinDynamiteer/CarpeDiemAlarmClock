@@ -55,6 +55,7 @@ const String device_name = "CarpeDiem Alarm Clock";
 #define JOYSTICK_THRESHOLD_DOWN (JOYSTICK_MEDIAN_VALUE + JOYSTICK_THRESHOLD)
 
 bool status_alarm;
+bool status_alarm_running;
 bool status_buzzer;
 bool status_rgb;
 bool show_time_on_ring;

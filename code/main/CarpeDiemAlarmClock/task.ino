@@ -92,7 +92,7 @@ static void time_handler(void *pvParameters)
         {
             rtc_update();
 
-            if(rtc_second_changed())
+            if(rtc_second_changed() && !status_alarm_running)
             {
                 if(xSemaphoreTake(semaphore_rgb, (TickType_t)200) == pdTRUE)
                 {
@@ -124,34 +124,32 @@ static void alarm_handler(void *pvParameters)
 
                 if(time_until_alarm == 0)
                 {
-                    if(xSemaphoreTake(semaphore_rgb,
-                        (TickType_t)2000) == pdTRUE)
+                    current_rgb_show_mode = RGB_SHOW_ALARM;
+                    status_alarm_running = true;
+
+                    while(1)
                     {
-                        while(1)
+                        if(status_buzzer)
                         {
-                            rgb_strip_set_color(
-                                on ? 40 : 0,
-                                on ? 40 : 0,
-                                on ? 40 : 0
-                            );
-
-                            ring_set_color(
-                                !on ? 40 : 0,
-                                !on ? 40 : 0,
-                                !on ? 40 : 0
-                            );
-
-
                             on ? buzzer_on() : buzzer_off();
-
-
-                            vTaskDelay(200);
-                            on = !on;
                         }
+
+                        if(joystick_moved())
+                        {
+                            break;
+                        }
+
+                        vTaskDelay(300);
+                        on = !on;
                     }
+
+                    buzzer_off();
+                    current_rgb_show_mode = RGB_SHOW_CLOCK;
+                    status_alarm_running = false;
+                    status_alarm = false;
                 }
 
-                if(time_until_alarm <= RTC_ALARM_START_MINUTES)
+                else if(time_until_alarm <= RTC_ALARM_START_MINUTES)
                 {
                     current_rgb_show_mode =
                         RGB_SHOW_WAKE_UP_BEFORE_ALARM;
@@ -194,7 +192,11 @@ static void rgb_display_handler(void *pvParameters)
                     serial_print_ln("rgb_handler: passed status_rgb");
             }
 
-            rgb_strip_set_status_bits();
+            if(!status_alarm_running)
+            {
+                rgb_strip_set_status_bits();
+            }
+
             rgb_show_func[current_rgb_show_mode]();
 
             xSemaphoreGive(semaphore_rgb);
@@ -235,7 +237,6 @@ static void rgb_updater(void *pvParameters)
         {
             vTaskDelay(100);  //ZZZZ
         }
-
     }
 }
 
@@ -375,7 +376,6 @@ static void joystick_input(void *pvParameters)
                     xSemaphoreGive(semaphore_rtc);
                 }
             }
-
         }
 
         vTaskDelay(100);
