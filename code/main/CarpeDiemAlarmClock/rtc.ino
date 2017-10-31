@@ -21,7 +21,7 @@ void rtc_init()
     rtc_alarm_countdown_running = false;
     rtc_time.last_checked_second = 61;
     rtc_time.last_checked_minute = 61;
-    rtc_alarm.hour = 8;
+    rtc_alarm.hour = 10;
     rtc_alarm.minute = 31;
 
     rtc_set(
@@ -146,4 +146,16 @@ bool rtc_minute_changed()
     }
 
     return false;
+}
+
+void rtc_test_countdown()
+{
+    rtc_set_hour_minute(10, 0);
+    rtc_set_alarm(10, 30);
+
+    for (size_t i = 1; i <= 30; i++)
+    {
+        rtc_set_hour_minute(10, i);
+        delay(1000);
+    }
 }

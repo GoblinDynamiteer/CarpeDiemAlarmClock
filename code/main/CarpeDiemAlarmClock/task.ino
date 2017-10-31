@@ -147,6 +147,16 @@ static void alarm_handler(void *pvParameters)
                     current_rgb_show_mode = RGB_SHOW_CLOCK;
                     status_alarm_running = false;
                     status_alarm = false;
+
+                    while(time_until_alarm == 0)
+                    {
+                        if(xSemaphoreTake(semaphore_rtc, (TickType_t)2000) == pdTRUE)
+                        {
+                            time_until_alarm = (uint16_t)rtc_time_to_alarm();
+                            xSemaphoreGive(semaphore_rtc);
+                        }
+                    }
+
                 }
 
                 else if(time_until_alarm <= RTC_ALARM_START_MINUTES)
@@ -162,6 +172,7 @@ static void alarm_handler(void *pvParameters)
         else
         {
             rtc_alarm_countdown_running = false;
+            status_alarm_running = false;
         }
 
         vTaskDelay(1000);
@@ -246,9 +257,10 @@ static void joystick_input(void *pvParameters)
     while(1)
     {
         /* Joystick left -- toggle alarm */
-        if (analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
+        if (!status_alarm_running &&
+            analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
         {
-            status_toggle_alarm();
+            status_toggle_buzzer();
             while(analogRead(JOYSTICK_PIN_X) < JOYSTICK_THRESHOLD_LEFT)
             {
                 vTaskDelay(1);
@@ -259,9 +271,10 @@ static void joystick_input(void *pvParameters)
         }
 
         /* Joystick right -- toggle buzzer */
-        if (analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
+        if (!status_alarm_running &&
+            analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
         {
-            status_toggle_buzzer();
+            status_toggle_alarm();
             while(analogRead(JOYSTICK_PIN_X) > JOYSTICK_THRESHOLD_RIGHT)
             {
                 vTaskDelay(1);
@@ -272,7 +285,8 @@ static void joystick_input(void *pvParameters)
         }
 
         /* Joystick up -- toggle rgb */
-        if (analogRead(JOYSTICK_PIN_Y) < JOYSTICK_THRESHOLD_UP)
+        if (!status_alarm_running &&
+            analogRead(JOYSTICK_PIN_Y) < JOYSTICK_THRESHOLD_UP)
         {
             status_toggle_rgb();
             while(analogRead(JOYSTICK_PIN_Y) < JOYSTICK_THRESHOLD_UP)
@@ -285,7 +299,8 @@ static void joystick_input(void *pvParameters)
         }
 
         /* Joystick down -- cycle rgb show modes and clock display */
-        if (analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN)
+        if (!status_alarm_running &&
+            analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN)
         {
             rgb_lightshows_select(RGB_SHOW_NEXT);
             while(analogRead(JOYSTICK_PIN_Y) > JOYSTICK_THRESHOLD_DOWN)

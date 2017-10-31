@@ -103,6 +103,32 @@ void handle_commands()
                     }
                     break;
 
+                case 'C': // Countdown test
+                    serial_print_ln(
+                        "Runnint countdown test!");
+
+                    if(xSemaphoreTake(semaphore_rtc,
+                        (TickType_t)200) == pdTRUE)
+                    {
+                        rtc_set_hour_minute(10, 0);
+                        rtc_set_alarm(10, 30);
+                        xSemaphoreGive(semaphore_rtc);
+                    }
+
+                        for (size_t i = 1; i <= 30; i++)
+                        {
+                            if(xSemaphoreTake(semaphore_rtc,
+                                (TickType_t)200) == pdTRUE)
+                            {
+                                rtc_set_hour_minute(10, i);
+                                xSemaphoreGive(semaphore_rtc);
+                            }
+
+                            vTaskDelay(1000);
+                        }
+                    break;
+
+
                 case 'Q': // Query -- Show status
                     serial_print_ln("Connected to " + device_name + "!");
                     if(xSemaphoreTake(semaphore_rtc,
