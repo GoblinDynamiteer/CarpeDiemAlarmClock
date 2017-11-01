@@ -64,4 +64,6 @@ uint16_t rgb_show_delay[6] =
 
 uint8_t rgb_current_clock_mode;
 
+void rgb_ring_set_one_pixel(uint8_t pixel, uint8_t red, uint8_t green, uint8_t blue, bool clear_first);
+
 #endif
