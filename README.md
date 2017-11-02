@@ -3,11 +3,22 @@ Project for course "Realtidssystem"
 Mjukvaruutvecklare inbyggda system  @ [MÖLK Utbildning](http://dev.molk.com)  
 Embedded software developing  
 
+![The clock!](https://raw.githubusercontent.com/GoblinDynamiteer/CarpeDiemAlarmClock/master/doc/img/photos/complete_build_clock_mode.jpg)  
+
 ### Project members:  
 Dylan Saleh [LinkedIn](https://www.linkedin.com/in/dylansaleh)  
 Johan Kämpe [LinkedIn](linkedin.com/in/johankampe) | [GitHub](https://github.com/GoblinDynamiteer)  
 Pay-Shin Quach [LinkedIn](https://www.linkedin.com/in/pay-shin-quach-6b276113b)  
 Stefan Ekström [LinkedIn](https://www.linkedin.com/in/stefan-ekstr%C3%B6m-47717147)  
+
+### Videos
+YouTube  
+[CarpeDiem AlarmClock Showcase](https://www.youtube.com/watch?v=_YS_Tcxn2Ls)  
+[Clock display with seconds as binary](https://www.youtube.com/watch?v=4Z99qmlPT-4)  
+[Mode switching](https://www.youtube.com/watch?v=f26hjNdRtAU)  
+[Alarm](https://www.youtube.com/watch?v=duoRIRUpNNA)  
+["Until Alarm"-buildup](https://www.youtube.com/watch?v=sp_SiLhKh64)  
+[Joystick & Mode Switch Test](https://youtu.be/ULnAHqrvtyQ)  
 
 ### Project goals  
 CarpeDiemAlarmClock is an alarm clock that is waking you up "gently" by gradually increasing the intensity of a NeoPixel LED-ring, before the alarm hits.  
@@ -41,7 +52,3 @@ Clock display test
 18:45  
 ![clock_1845](https://raw.githubusercontent.com/GoblinDynamiteer/CarpeDiemAlarmClock/master/doc/img/photos/clock_display_18_45_edit.png)  
 ![clock_1845_arms](https://raw.githubusercontent.com/GoblinDynamiteer/CarpeDiemAlarmClock/master/doc/img/photos/clock_display_18_45_edit_clock_arms.png)  
-
-### Videos
-YouTube  
-[Joystick & Mode Switch Test](https://youtu.be/ULnAHqrvtyQ)  
