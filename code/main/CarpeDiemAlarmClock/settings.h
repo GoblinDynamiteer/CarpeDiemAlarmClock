@@ -1,10 +1,13 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+/* Uncomment (one) to use specific serial communication pins */
 //#define SERIAL_0 // USB
 //#define SERIAL_1
 #define SERIAL_2
 //#define SERIAL_3
+
+/* Comment to disable serial output debugging */
 #define SERIAL_DEBUG_OUTPUT_ENABLE
 
 #ifdef SERIAL_0
@@ -43,22 +46,22 @@ const String device_name = "CarpeDiem Alarm Clock";
 
 #define BUZZER_PIN PB12
 
-#define JOYSTICK_PIN_Y PA6
-#define JOYSTICK_PIN_X PA7
-#define JOYSTICK_PIN_SW PB11
+#define JOYSTICK_PIN_Y PA6      // Analog Y
+#define JOYSTICK_PIN_X PA7      // Analog X
+#define JOYSTICK_PIN_SW PB11    // Switch (Top)
 
-#define JOYSTICK_MEDIAN_VALUE 2900
-#define JOYSTICK_THRESHOLD 500
+#define JOYSTICK_MEDIAN_VALUE 2900  // Joystick "middle" position analog value
+#define JOYSTICK_THRESHOLD 500      // Threshold for left / right / up / down
 #define JOYSTICK_THRESHOLD_LEFT (JOYSTICK_MEDIAN_VALUE - JOYSTICK_THRESHOLD)
 #define JOYSTICK_THRESHOLD_RIGHT (JOYSTICK_MEDIAN_VALUE + JOYSTICK_THRESHOLD)
 #define JOYSTICK_THRESHOLD_UP (JOYSTICK_MEDIAN_VALUE - JOYSTICK_THRESHOLD)
 #define JOYSTICK_THRESHOLD_DOWN (JOYSTICK_MEDIAN_VALUE + JOYSTICK_THRESHOLD)
 
-bool status_alarm;
-bool status_alarm_running;
-bool status_buzzer;
-bool status_rgb;
-bool show_time_on_ring;
+/* Alarm clock statuses */
+bool status_alarm;              // Alarm on / off
+bool status_alarm_running;      // Alarm running
+bool status_buzzer;             // Buzzer (sound) on / off
+bool status_rgb;                // Display on / off
 
 enum
 {

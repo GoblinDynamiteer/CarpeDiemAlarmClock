@@ -1,7 +1,10 @@
 #ifndef RGB_H
 #define RGB_H
 
-/* LED Amounts */
+/*  LED Amounts, Ring has 24 LEDs and strip has 8 LEDs
+    Strip and Ring are connected in series,
+    data out from ring to data in on strip.
+*/
 #define RING_NUM_LEDS 24
 #define STRIP_NUM_LEDS 8
 #define RGB_TOTAL_NUM_LED RING_NUM_LEDS + STRIP_NUM_LEDS
@@ -12,7 +15,6 @@
 
 /* For fade-mode */
 enum { COLOR_RED, COLOR_GREEN, COLOR_BLUE };
-
 
 /* For rgb shows/demos/clock */
 enum { INC_RED, INC_GREEN, INC_BLUE };
@@ -64,6 +66,9 @@ uint16_t rgb_show_delay[6] =
 
 uint8_t rgb_current_clock_mode;
 
-void rgb_ring_set_one_pixel(uint8_t pixel, uint8_t red, uint8_t green, uint8_t blue, bool clear_first);
+/* Functions in rgb.ino  */
+void rgb_ring_set_one_pixel(
+    uint8_t pixel, uint8_t red, uint8_t green,
+    uint8_t blue, bool clear_first);
 
 #endif

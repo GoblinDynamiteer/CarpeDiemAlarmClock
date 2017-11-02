@@ -1,6 +1,6 @@
 /*  CarpeDiem Alarm clock
 
-    rtc.c
+    rtc.ino
 
     RTC Functions
     Default I2C Pins:
@@ -13,6 +13,7 @@
 #include "settings.h"
 
 uRTCLib rtc;
+
 rtc_time_struct rtc_time;
 rtc_alarm_struct rtc_alarm;
 
@@ -84,16 +85,19 @@ void rtc_set_hour_minute(uint8_t h, uint8_t m)
         rtc_time.year);
 }
 
+/* Return second from struct (not RTC) */
 uint8_t rtc_second()
 {
     return rtc_time.second;
 }
 
+/* Return minute from struct (not RTC) */
 uint8_t rtc_minute()
 {
     return rtc_time.minute;
 }
 
+/* Return hour from struct (not RTC) */
 uint8_t rtc_hour()
 {
     return rtc_time.hour;
@@ -122,7 +126,7 @@ void rtc_serial_print(void)
                 String(rtc_time.second) + "\n");
 }
 
-/* Check if a second has ticked since last check */
+/* Check if a second has ticked since last check (with this function) */
 bool rtc_second_changed()
 {
     rtc_update();
@@ -135,7 +139,7 @@ bool rtc_second_changed()
     return false;
 }
 
-/* Check if a minute has passed since last check */
+/* Check if a minute has passed since last check (with this function) */
 bool rtc_minute_changed()
 {
     rtc_update();
@@ -148,10 +152,11 @@ bool rtc_minute_changed()
     return false;
 }
 
+/* Speedy simulation of 30 minutes passing until alarm hits */
 void rtc_test_countdown()
 {
-    rtc_set_hour_minute(10, 0);
-    rtc_set_alarm(10, 30);
+    rtc_set_hour_minute(10, 0); // Set clock to 10:00
+    rtc_set_alarm(10, 30);      // Set alarm to 10:30
 
     for (size_t i = 1; i <= 30; i++)
     {

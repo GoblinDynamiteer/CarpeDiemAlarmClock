@@ -1,17 +1,19 @@
 /*  CarpeDiem Alarm clock
 
-    rgb_shows.ino
+    display.ino
 
-    Functions running cool neopixel demos / lightshows
+    Functions for different display modes
  */
 
 #include "rgb.h"
 #include "settings.h"
 
+/* Semaphore defined in task.ino */
 extern SemaphoreHandle_t semaphore_rtc;
 
 bool has_cycled = false;
 
+/* Init function pointer array and set start display mode */
 void rgb_lightshows_init()
 {
     rgb_show_func[RGB_SHOW_CLOCK] = rgb_lightshow_clock;
@@ -21,13 +23,14 @@ void rgb_lightshows_init()
     rgb_show_func[RGB_SHOW_WAKE_UP_BEFORE_ALARM] = rgb_lightshow_before_alarm;
     rgb_show_func[RGB_SHOW_ALARM] = rgb_lightshow_alarm;
 
+    /* Index for function pointer array and delay array */
     current_rgb_show_mode = RGB_SHOW_CLOCK;
 }
 
-/* Cycle function pointer and delay array indexes */
+/* Cycle current display mode */
 extern void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
 {
-    if(next_previous) // next
+    if(next_previous) // Next mode
     {
         current_rgb_show_mode =
             (current_rgb_show_mode == RGB_SHOW_MAX_MODES - 2) ?
@@ -36,7 +39,7 @@ extern void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
         has_cycled = true;
     }
 
-    else
+    else // Previous mode
     {
         current_rgb_show_mode =
             (current_rgb_show_mode == 0) ?
@@ -46,7 +49,7 @@ extern void rgb_lightshows_select(bool next_previous = RGB_SHOW_NEXT)
     }
 }
 
-/* Show clock on ring */
+/* Show clock on LED-ring */
 void rgb_lightshow_clock(void)
 {
     if(xSemaphoreTake(semaphore_rtc, (TickType_t)100) == pdTRUE)
@@ -65,6 +68,7 @@ void rgb_lightshow_clock(void)
     }
 }
 
+/* Lightshow */
 void rgb_lightshow_splitter(void)
 {
     static uint8_t n = 1;
@@ -82,7 +86,7 @@ void rgb_lightshow_splitter(void)
     rgb_need_update();
 }
 
-/* Four "pie pieces" rotating counter-clockwise */
+/* Lightshow : four "pie pieces" rotating counter-clockwise */
 void rgb_lightshow_pie_chaser(void)
 {
     static uint8_t led_index = 0;
@@ -105,7 +109,7 @@ void rgb_lightshow_pie_chaser(void)
     rgb_need_update();
 }
 
-/* Colors rotating and blending clockwise */
+/* Lightshow: Colors rotating and blending clockwise */
 void rgb_lightshow_rainbow_spinner(void)
 {
     static int16_t blue = RGB_SHOW_MAX_PWM;
@@ -151,7 +155,7 @@ void rgb_lightshow_rainbow_spinner(void)
     rgb_need_update();
 }
 
-/* Alarm */
+/* Alarm: Blinking LEDs */
 void rgb_lightshow_alarm(void)
 {
     static bool on = false;
@@ -172,7 +176,7 @@ void rgb_lightshow_alarm(void)
 }
 
 
-/* Wake up before alarm */
+/* Alramr buildup*/
 void rgb_lightshow_before_alarm(void)
 {
     static uint8_t intensity = 0;

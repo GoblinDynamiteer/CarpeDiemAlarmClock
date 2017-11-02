@@ -1,11 +1,8 @@
 /*  CarpeDiem Alarm clock
 
-    rtc.c
+    settings.ino
 
-    RTC Functions
-    Default I2C Pins:
-        PB06 SCL
-        PB07 SDA
+    Misc settings
  */
 
 #include "settings.h"
@@ -17,17 +14,19 @@ bool status_change[3] =
     false       // STATUS_RGB
 };
 
-
+/* Onboard LED pin */
 void on_board_led_init()
 {
     pinMode(SETTING_ON_BOARD_LED_PIN, OUTPUT);
 }
 
+/* Joystick button pin */
 void joystick_init()
 {
     pinMode(JOYSTICK_PIN_SW, INPUT_PULLUP);
 }
 
+/* Start selected Serial and selected debug output mode */
 void serial_begin()
 {
     #ifdef SERIAL_0
@@ -53,6 +52,7 @@ void serial_begin()
     #endif
 }
 
+/* Toggle status for alarm */
 void status_toggle_alarm()
 {
     status_alarm = !status_alarm;
@@ -63,6 +63,7 @@ void status_toggle_alarm()
             "alarm_status: on" : "alarm_status: off");
 }
 
+/* Toggle status for rgb (display) */
 void status_toggle_rgb()
 {
     status_rgb = !status_rgb;
@@ -73,6 +74,7 @@ void status_toggle_rgb()
             "rgb_status: on" : "rgb_status: off");
 }
 
+/* Toggle status for buzzer (sound) */
 void status_toggle_buzzer()
 {
     status_buzzer = !status_buzzer;
@@ -88,6 +90,7 @@ void status_toggle_buzzer()
             "buzzer_status: on" : "buzzer_status: off");
 }
 
+/* Check if status has changes since last check (with this function) */
 bool status_changed(uint8_t type)
 {
     if(status_change[type])
@@ -110,16 +113,17 @@ void toggle_on_board_led()
     on = !on;
 }
 
+/* Reset all status flags */
 void reset_status_flags()
 {
     status_alarm = true;
     status_alarm_running = false;
     status_buzzer = true;
     status_rgb = true;
-    show_time_on_ring = true;
     current_rgb_show_mode = 0;
 }
 
+/* Toggles onboard several times */
 void toggle_on_board_led_n_times(uint8_t n)
 {
     if(serial_debug_output)

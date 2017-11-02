@@ -1,28 +1,30 @@
 /*  CarpeDiem Alarm clock
 
-    rtc.c
+    rgb.ino
 
     LED-strip and LED-Ring Functions
-    Default pin for LED-ring data pin is PA0
  */
 
-/* Port of NeoPixel library */
+/* NeoMaple is a port of the NeoPixel library, works on STM32 */
 #include <NeoMaple.h>
 #include "settings.h"
 
+/* Default data-pin for NeoMaple is PA0 */
 NeoMaple rgb = NeoMaple(RGB_TOTAL_NUM_LED, NEO_GRB + NEO_KHZ800);
+
 bool show_pixels;
 
 void rgb_init()
 {
     rgb.begin();
-    on_board_led_init();
+    on_board_led_init();    // For debugging
     rgb_lightshows_init();
-    rgb_all_led_test();
+    rgb_all_led_test();     // Runs at startup, for ocular check of LEDs
     show_pixels = false;
     rgb_current_clock_mode = RGB_CLOCK_MODE_REGULAR;
 }
 
+/* Runs at startup, for ocular check of LEDs */
 void rgb_all_led_test()
 {
     for (int i = 0; i < RGB_TOTAL_NUM_LED; i++)
@@ -33,6 +35,7 @@ void rgb_all_led_test()
     }
 }
 
+/* All LEDs are turned off */
 void rgb_all_led_off()
 {
     for (int i = 0; i < RGB_TOTAL_NUM_LED; i++)
@@ -43,6 +46,7 @@ void rgb_all_led_off()
     rgb.show();
 }
 
+/* Show LEDs */
 void rgb_update()
 {
     if(show_pixels)
@@ -218,6 +222,8 @@ void rgb_strip_show_second(
     rgb_need_update();
 }
 
+/*  Calculates pixel location that represents passed minute
+    (Ring has 24 LEDs, not 60) */
 uint8_t rgb_ring_calc_pixel_minute(
     uint8_t minute)
 {
@@ -226,6 +232,8 @@ uint8_t rgb_ring_calc_pixel_minute(
     return index;
 }
 
+/*  Calculates pixel location that represents passed hour
+    If 30 minutes has passed since, then next pixel is selected */
 uint8_t rgb_ring_calc_pixel_hour(
     uint8_t hour, uint8_t minute)
 {
@@ -243,12 +251,14 @@ void rgb_ring_show_clock(uint8_t hour, uint8_t minute, uint8_t mode)
 {
     switch(mode)
     {
-        case RGB_CLOCK_MODE_REGULAR:
+        case RGB_CLOCK_MODE_REGULAR: // Default clock mode
             rgb_ring_set_one_pixel(
                 rgb_ring_calc_pixel_minute(minute), 0, 0, 20, true);
             rgb_ring_set_one_pixel(
                 rgb_ring_calc_pixel_hour(hour, minute), 0, 20, 0, false);
             break;
+
+        // Todo: Add more clock display modes.
 
         default:
             break;
